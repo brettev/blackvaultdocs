@@ -1,0 +1,24 @@
+# Belt-and-suspenders root ignore; nested backend/ and frontend/ have their own.
+.DS_Store
+*.log
+*.tsbuildinfo
+
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Deps / build artifacts (nested gitignores already cover these, but keep here too)
+node_modules/
+vendor/
+**/node_modules/
+**/vendor/
+**/.next/
+**/out/
+**/var/cache/
+**/var/log/
+**/public/bundles/
+
+# Editor / OS
+.idea/
+.vscode/
