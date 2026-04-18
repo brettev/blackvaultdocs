@@ -3,10 +3,10 @@
 *.log
 *.tsbuildinfo
 
-# Secrets
-.env
+# Secrets — .env committed (Symfony default), .env.local for overrides
 .env.local
 .env.*.local
+.env.local.php
 
 # Deps / build artifacts (nested gitignores already cover these, but keep here too)
 node_modules/
