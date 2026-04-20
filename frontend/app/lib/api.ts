@@ -44,19 +44,29 @@ export type AgencyRow = {
   doc_count: number;
 };
 
+export type ScrapeLogRow = {
+  id: number;
+  source: string;
+  task: string;
+  status: string;
+  rows_added: number;
+  rows_seen: number;
+  started_at: string;
+  finished_at: string | null;
+};
+
 export type Stats = {
   total_documents: number;
   total_topics: number;
   total_agencies: number;
-  last_scrape: {
-    source: string;
-    status: string;
-    rows_added: number;
-    rows_seen: number;
-    started_at: string;
-    finished_at: string | null;
-  } | null;
+  last_scrape: ScrapeLogRow | null;
+  by_topic: Array<Pick<TopicRow, 'slug' | 'name' | 'agency_slug' | 'doc_count'>>;
+  by_source: Array<{ source: string; doc_count: number }>;
+  recent_scrapes: ScrapeLogRow[];
+  recently_indexed: Array<{ slug: string; title: string; topic_slug: string | null; scraped_at: string }>;
 };
+
+export type DocNeighbour = { slug: string; title: string } | null;
 
 type ListEnvelope<T> = {
   data: T[];
@@ -90,8 +100,21 @@ export async function listTopics(limit = 200): Promise<TopicRow[]> {
   return res?.data ?? [];
 }
 
-export async function getTopic(slug: string): Promise<{ topic: TopicRow; documents: Omit<DocumentRow, 'summary' | 'source_url' | 'agency_slug' | 'classification' | 'topic_slug' | 'scraped_at'>[] } | null> {
-  return getJson(`/api/public/topics/${encodeURIComponent(slug)}`);
+export async function getTopic(
+  slug: string,
+  opts: { page?: number; limit?: number } = {},
+): Promise<{
+  topic: TopicRow;
+  documents: Pick<DocumentRow, 'slug' | 'title' | 'source' | 'pdf_url' | 'released_at'>[];
+  page: number;
+  limit: number;
+  pages: number;
+} | null> {
+  const qs = new URLSearchParams();
+  if (opts.page) qs.set('page', String(opts.page));
+  if (opts.limit) qs.set('limit', String(opts.limit));
+  const suffix = qs.toString() ? `?${qs.toString()}` : '';
+  return getJson(`/api/public/topics/${encodeURIComponent(slug)}${suffix}`);
 }
 
 export async function listDocuments(params: {
@@ -110,8 +133,11 @@ export async function listDocuments(params: {
 
 export async function getDocument(slug: string): Promise<{
   document: DocumentDetail;
-  topic: { slug: string; name: string; description: string | null } | null;
+  topic: { slug: string; name: string; description: string | null; doc_count: number } | null;
   agency: { slug: string; name: string } | null;
+  prev: DocNeighbour;
+  next: DocNeighbour;
+  related: { slug: string; title: string }[];
 } | null> {
   return getJson(`/api/public/documents/${encodeURIComponent(slug)}`);
 }
@@ -141,6 +167,30 @@ export async function listAllDocumentSlugs(params: { topic?: string; max?: numbe
     if (rows.length === 0) break;
     for (const r of rows) {
       out.push(r.slug);
+      if (out.length >= max) break;
+    }
+    if (page >= (res?.pages ?? 1)) break;
+    page += 1;
+  }
+  return out;
+}
+
+/**
+ * Build a lightweight search index of every document — slug + title + topic.
+ * Small enough (<2 MB for ~12k docs) to ship as a static JSON and filter
+ * client-side on the /search/ page. Called at build time by the search page.
+ */
+export type SearchIndexEntry = { slug: string; title: string; topic: string | null };
+
+export async function buildSearchIndex(max = 30000, pageSize = 500): Promise<SearchIndexEntry[]> {
+  const out: SearchIndexEntry[] = [];
+  let page = 1;
+  while (out.length < max) {
+    const res = await listDocuments({ page, limit: pageSize });
+    const rows = res?.data ?? [];
+    if (rows.length === 0) break;
+    for (const r of rows) {
+      out.push({ slug: r.slug, title: r.title, topic: r.topic_slug });
       if (out.length >= max) break;
     }
     if (page >= (res?.pages ?? 1)) break;

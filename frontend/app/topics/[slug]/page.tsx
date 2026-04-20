@@ -1,12 +1,17 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTopic, listDocuments, listTopics } from '../../lib/api';
+import { getTopic, listTopics } from '../../lib/api';
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
 
+// Page 1 is `/topics/<slug>/`. Further pages live under
+// `/topics/<slug>/page/<n>/` so the main URL stays canonical.
+
 type Params = { slug: string };
+
+const DOCS_PER_PAGE = 100;
 
 export async function generateStaticParams(): Promise<Params[]> {
   const topics = await listTopics(500);
@@ -15,7 +20,7 @@ export async function generateStaticParams(): Promise<Params[]> {
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
-  const res = await getTopic(slug);
+  const res = await getTopic(slug, { page: 1, limit: DOCS_PER_PAGE });
   if (!res) return { title: 'Collection not found' };
   const { topic } = res;
   return {
@@ -32,18 +37,36 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
-const DOCS_PER_PAGE = 250;
-
 export default async function TopicDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
-  const res = await getTopic(slug);
+  const res = await getTopic(slug, { page: 1, limit: DOCS_PER_PAGE });
   if (!res) notFound();
-  const { topic } = res;
+  const { topic, documents } = res;
+  const pages = res.pages ?? Math.max(1, Math.ceil((topic.doc_count || documents.length) / DOCS_PER_PAGE));
 
-  // getTopic returns up to 200 docs. For a richer view, paginate the
-  // /documents endpoint (up to 250 rows) which sorts by most-recent scrape.
-  const docsRes = await listDocuments({ topic: slug, page: 1, limit: DOCS_PER_PAGE });
-  const docs = docsRes?.data ?? res.documents ?? [];
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': `https://blackvaultdocs.com/topics/${topic.slug}/`,
+    url: `https://blackvaultdocs.com/topics/${topic.slug}/`,
+    name: topic.name,
+    description: topic.description,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'BlackVaultDocs',
+      url: 'https://blackvaultdocs.com/',
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: topic.doc_count,
+      itemListElement: documents.slice(0, 25).map((d, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        url: `https://blackvaultdocs.com/documents/${d.slug}/`,
+        name: d.title,
+      })),
+    },
+  };
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
@@ -79,20 +102,20 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
       </header>
 
       <section className="mt-8">
-        <h2 className="text-lg font-semibold text-gray-200">
-          Documents ({docs.length.toLocaleString()}
-          {topic.doc_count > docs.length ? ` of ${topic.doc_count.toLocaleString()}` : ''})
-        </h2>
-        <p className="mt-1 text-xs text-gray-500">
-          Listing the first {DOCS_PER_PAGE} documents in this collection. Each
-          row links to the original PDF at the National Archives.
-        </p>
-        <ul className="mt-6 divide-y divide-gray-800 rounded-md border border-gray-800 bg-gray-900/40">
-          {docs.map((d) => (
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-lg font-semibold text-gray-200">
+            Documents — page 1 of {pages.toLocaleString()}
+          </h2>
+          <span className="text-xs text-gray-500 font-mono">
+            {documents.length.toLocaleString()} shown
+          </span>
+        </div>
+        <ul className="mt-4 divide-y divide-gray-800 rounded-md border border-gray-800 bg-gray-900/40">
+          {documents.map((d) => (
             <li key={d.slug} className="flex items-center gap-4 px-4 py-3">
               <Link
                 href={`/documents/${d.slug}/`}
-                className="flex-1 text-sm text-gray-200 hover:text-white truncate font-mono"
+                className="flex-1 truncate font-mono text-sm text-gray-200 hover:text-white"
               >
                 {d.title}
               </Link>
@@ -101,7 +124,7 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
                   href={d.pdf_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs font-mono uppercase tracking-widest text-red-400 hover:text-red-300"
+                  className="font-mono text-xs uppercase tracking-widest text-red-400 hover:text-red-300"
                 >
                   PDF ↗
                 </a>
@@ -109,6 +132,10 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
             </li>
           ))}
         </ul>
+
+        {pages > 1 ? (
+          <TopicPagination slug={topic.slug} current={1} pages={pages} />
+        ) : null}
       </section>
 
       <section className="mt-12 rounded-md border border-gray-800 bg-gray-900/40 p-6">
@@ -120,8 +147,86 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
           National Archives as part of ongoing declassification programs. Each
           file retains its original NARA Record Identification Number so it
           can be cross-referenced against academic and journalistic citations.
+          Use the pagination below to walk the full {topic.doc_count.toLocaleString()}-record
+          list, or jump to any individual document for metadata and an
+          in-browser PDF preview.
         </p>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     </main>
   );
+}
+
+function TopicPagination({ slug, current, pages }: { slug: string; current: number; pages: number }) {
+  const window = paginationWindow(current, pages);
+  return (
+    <nav className="mt-6 flex items-center justify-between gap-4 text-xs font-mono uppercase tracking-widest text-gray-400">
+      <div>
+        {current > 1 ? (
+          <Link
+            href={current === 2 ? `/topics/${slug}/` : `/topics/${slug}/page/${current - 1}/`}
+            className="rounded border border-gray-800 bg-gray-900/40 px-3 py-1 hover:border-red-800 hover:text-white"
+          >
+            ← prev
+          </Link>
+        ) : null}
+      </div>
+      <div className="flex flex-wrap items-center gap-1">
+        {window.map((p, i) =>
+          p === '…' ? (
+            <span key={`e-${i}`} className="px-2 text-gray-600">
+              …
+            </span>
+          ) : p === current ? (
+            <span
+              key={p}
+              className="rounded border border-red-700 bg-red-900/30 px-3 py-1 text-white"
+            >
+              {p}
+            </span>
+          ) : (
+            <Link
+              key={p}
+              href={p === 1 ? `/topics/${slug}/` : `/topics/${slug}/page/${p}/`}
+              className="rounded border border-gray-800 bg-gray-900/40 px-3 py-1 hover:border-red-800 hover:text-white"
+            >
+              {p}
+            </Link>
+          ),
+        )}
+      </div>
+      <div>
+        {current < pages ? (
+          <Link
+            href={`/topics/${slug}/page/${current + 1}/`}
+            className="rounded border border-gray-800 bg-gray-900/40 px-3 py-1 hover:border-red-800 hover:text-white"
+          >
+            next →
+          </Link>
+        ) : null}
+      </div>
+    </nav>
+  );
+}
+
+// Returns a compact pagination window: [1, '…', 4, 5, 6, '…', 42]
+function paginationWindow(current: number, total: number): Array<number | '…'> {
+  const out: Array<number | '…'> = [];
+  const add = (x: number | '…') => {
+    if (out[out.length - 1] !== x) out.push(x);
+  };
+  const isLow = current <= 4;
+  const isHigh = current >= total - 3;
+  add(1);
+  if (!isLow) add('…');
+  const start = Math.max(2, current - 2);
+  const end = Math.min(total - 1, current + 2);
+  for (let p = start; p <= end; p++) add(p);
+  if (!isHigh) add('…');
+  if (total > 1) add(total);
+  return out;
 }

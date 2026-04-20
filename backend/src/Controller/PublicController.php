@@ -33,11 +33,43 @@ final class PublicController extends AbstractController
              FROM scrape_log ORDER BY id DESC LIMIT 1',
         ) ?: null;
 
+        // Rich stats surfaces: per-topic + per-source breakdowns drive the
+        // /stats/ page and any dashboards that follow.
+        $topicBreakdown = $this->conn->fetchAllAssociative(
+            'SELECT t.slug, t.name, t.agency_slug, t.doc_count
+             FROM topics t
+             ORDER BY t.doc_count DESC, t.name ASC
+             LIMIT 50',
+        );
+        $sourceBreakdown = $this->conn->fetchAllAssociative(
+            'SELECT source, COUNT(*) AS doc_count
+             FROM documents
+             GROUP BY source
+             ORDER BY doc_count DESC',
+        );
+        $recentScrapes = $this->conn->fetchAllAssociative(
+            'SELECT id, source, task, status, rows_added, rows_seen,
+                    started_at, finished_at
+             FROM scrape_log
+             ORDER BY id DESC
+             LIMIT 10',
+        );
+        $recentlyIndexed = $this->conn->fetchAllAssociative(
+            'SELECT slug, title, topic_slug, scraped_at
+             FROM documents
+             ORDER BY scraped_at DESC, slug ASC
+             LIMIT 20',
+        );
+
         return new JsonResponse([
             'total_documents' => $documents,
             'total_topics' => $topics,
             'total_agencies' => $agencies,
             'last_scrape' => $lastScrape ?: null,
+            'by_topic' => $topicBreakdown,
+            'by_source' => $sourceBreakdown,
+            'recent_scrapes' => $recentScrapes,
+            'recently_indexed' => $recentlyIndexed,
         ]);
     }
 
@@ -105,15 +137,84 @@ final class PublicController extends AbstractController
             return new JsonResponse(['error' => 'Not found'], 404);
         }
         $topic = $doc['topic_slug']
-            ? $this->conn->fetchAssociative('SELECT slug, name, description FROM topics WHERE slug = :s', ['s' => $doc['topic_slug']])
+            ? $this->conn->fetchAssociative(
+                'SELECT slug, name, description, doc_count FROM topics WHERE slug = :s',
+                ['s' => $doc['topic_slug']],
+            )
             : null;
         $agency = $doc['agency_slug']
             ? $this->conn->fetchAssociative('SELECT slug, name FROM agencies WHERE slug = :s', ['s' => $doc['agency_slug']])
             : null;
+
+        // In-collection neighbours — alphabetical on slug because that's what
+        // the topic detail page sorts on. Using slug keeps the walk stable
+        // even when `scraped_at` ties across thousands of rows.
+        $prev = null;
+        $next = null;
+        $related = [];
+        if ($doc['topic_slug']) {
+            $prev = $this->conn->fetchAssociative(
+                'SELECT slug, title FROM documents
+                 WHERE topic_slug = :t AND slug < :s
+                 ORDER BY slug DESC LIMIT 1',
+                ['t' => $doc['topic_slug'], 's' => $slug],
+            ) ?: null;
+            $next = $this->conn->fetchAssociative(
+                'SELECT slug, title FROM documents
+                 WHERE topic_slug = :t AND slug > :s
+                 ORDER BY slug ASC LIMIT 1',
+                ['t' => $doc['topic_slug'], 's' => $slug],
+            ) ?: null;
+            $related = $this->conn->fetchAllAssociative(
+                'SELECT slug, title FROM documents
+                 WHERE topic_slug = :t AND slug <> :s
+                 ORDER BY RAND()
+                 LIMIT 6',
+                ['t' => $doc['topic_slug'], 's' => $slug],
+            );
+        }
+
         return new JsonResponse([
             'document' => $doc,
             'topic' => $topic ?: null,
             'agency' => $agency ?: null,
+            'prev' => $prev,
+            'next' => $next,
+            'related' => $related,
+        ]);
+    }
+
+    #[Route('/search', methods: ['GET'])]
+    public function search(Request $request): JsonResponse
+    {
+        $q = trim((string) $request->query->get('q', ''));
+        $limit = min(100, max(1, (int) $request->query->get('limit', 50)));
+        if ($q === '' || mb_strlen($q) < 2) {
+            return new JsonResponse(['data' => [], 'total' => 0, 'query' => $q]);
+        }
+
+        // Cheap LIKE search. Good enough for the current corpus (~12k rows)
+        // and keeps the schema simple. Revisit when we add full-text or
+        // MeiliSearch.
+        $like = '%' . $q . '%';
+        $rows = $this->conn->fetchAllAssociative(
+            'SELECT slug, title, topic_slug, agency_slug, source, pdf_url
+             FROM documents
+             WHERE title LIKE :q OR slug LIKE :q OR external_id LIKE :q
+             ORDER BY CHAR_LENGTH(title) ASC, slug ASC
+             LIMIT ' . $limit,
+            ['q' => $like],
+        );
+        $total = (int) $this->conn->fetchOne(
+            'SELECT COUNT(*) FROM documents
+             WHERE title LIKE :q OR slug LIKE :q OR external_id LIKE :q',
+            ['q' => $like],
+        );
+        return new JsonResponse([
+            'data' => $rows,
+            'total' => $total,
+            'query' => $q,
+            'limit' => $limit,
         ]);
     }
 
@@ -141,7 +242,7 @@ final class PublicController extends AbstractController
     }
 
     #[Route('/topics/{slug}', methods: ['GET'], requirements: ['slug' => '[A-Za-z0-9_-]+'])]
-    public function getTopic(string $slug): JsonResponse
+    public function getTopic(Request $request, string $slug): JsonResponse
     {
         $topic = $this->conn->fetchAssociative(
             'SELECT slug, name, description, agency_slug, doc_count FROM topics WHERE slug = :s',
@@ -150,13 +251,23 @@ final class PublicController extends AbstractController
         if (!$topic) {
             return new JsonResponse(['error' => 'Not found'], 404);
         }
+        $limit = min(500, max(1, (int) $request->query->get('limit', 250)));
+        $page = max(1, (int) $request->query->get('page', 1));
+        $offset = ($page - 1) * $limit;
         $docs = $this->conn->fetchAllAssociative(
-            'SELECT slug, title, source, pdf_url, released_at
+            "SELECT slug, title, source, pdf_url, released_at
              FROM documents WHERE topic_slug = :s
-             ORDER BY title ASC LIMIT 200',
+             ORDER BY slug ASC
+             LIMIT $limit OFFSET $offset",
             ['s' => $slug],
         );
-        return new JsonResponse(['topic' => $topic, 'documents' => $docs]);
+        return new JsonResponse([
+            'topic' => $topic,
+            'documents' => $docs,
+            'page' => $page,
+            'limit' => $limit,
+            'pages' => (int) ceil(((int) $topic['doc_count']) / max($limit, 1)),
+        ]);
     }
 
     #[Route('/agencies', methods: ['GET'])]

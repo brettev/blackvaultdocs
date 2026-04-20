@@ -12,11 +12,13 @@ export function SiteHeader() {
             BlackVaultDocs
           </span>
         </Link>
-        <nav className="flex items-center gap-5 text-sm text-gray-400">
+        <nav className="flex items-center gap-4 text-sm text-gray-400 sm:gap-5">
           <Link href="/topics/" className="hover:text-gray-100">Collections</Link>
           <Link href="/documents/" className="hover:text-gray-100">Documents</Link>
           <Link href="/agencies/" className="hover:text-gray-100">Agencies</Link>
-          <Link href="/about/" className="hover:text-gray-100 hidden sm:inline">About</Link>
+          <Link href="/search/" className="hover:text-gray-100">Search</Link>
+          <Link href="/stats/" className="hover:text-gray-100 hidden sm:inline">Stats</Link>
+          <Link href="/about/" className="hover:text-gray-100 hidden md:inline">About</Link>
         </nav>
       </div>
     </header>
@@ -43,6 +45,8 @@ export function SiteFooter() {
             <li><Link href="/topics/" className="hover:text-gray-100">All collections</Link></li>
             <li><Link href="/documents/" className="hover:text-gray-100">All documents</Link></li>
             <li><Link href="/agencies/" className="hover:text-gray-100">Agencies</Link></li>
+            <li><Link href="/search/" className="hover:text-gray-100">Search</Link></li>
+            <li><Link href="/stats/" className="hover:text-gray-100">Archive stats</Link></li>
           </ul>
         </div>
         <div>

@@ -1,0 +1,352 @@
+# BlackVaultDocs — Agent Rules
+
+High-signal context for AI agents working in this repo. Read the whole file
+before touching code or infra. Keep this file in sync when architecture
+changes. This is the canonical map of what's where, who reads what, and how
+the site is shipped.
+
+The long-form product/archive prose lives in `AGENTS.md` at the repo root;
+this file is the operational manual.
+
+---
+
+## 1. What this is
+
+BlackVaultDocs is a structured, SEO-oriented index of **declassified US
+government documents** — JFK / RFK / MLK assassination records, National
+Archives (NARA) FOIA releases, and (planned) CIA CREST, FBI Vault,
+National Security Archive, etc.
+
+- Frontend: Next.js 16 App Router, static export, dark FOIA/archive aesthetic.
+- Backend: Symfony 7 read-only JSON API backed by Doctrine DBAL (no ORM).
+- Data model: flat — `agencies`, `topics`, `documents`, `scrape_log`.
+- Ingestion: Symfony console commands that politely crawl landing pages on
+  archives.gov, parse linked PDFs, and upsert document rows.
+- PDFs are **never rehosted**. We link to the original file on archives.gov.
+
+The archive is meant to out-SEO the source release pages by giving every
+document a stable, linkable URL with clean metadata. Inspired by the
+playbook of `lobbyvault.com`, `spendingvault.com`, `localcrimevault.com`.
+
+---
+
+## 2. Repo layout
+
+```
+blackvaultdocs/
+├── .cursorrules                   ← you are here
+├── AGENTS.md                      ← product narrative + source list
+├── backend/                       ← Symfony 7 API
+│   ├── compose.yaml               ← local-only Postgres for dev; prod = RDS MySQL
+│   ├── config/
+│   ├── migrations/
+│   │   └── 000_bvd_schema.sql     ← canonical DDL, apply by hand with mysql
+│   ├── public/index.php
+│   ├── src/
+│   │   ├── Command/ScrapeCommand.php          ← `app:bvd:scrape`
+│   │   ├── Controller/HealthController.php
+│   │   ├── Controller/PublicController.php    ← `/api/public/*` read API
+│   │   └── Service/ArchivesGovScraper.php     ← paced archives.gov crawler
+│   └── .env                       ← COMMITTED (Symfony convention) — no secrets beyond RDS creds
+└── frontend/                      ← Next.js 16 static export
+    ├── app/
+    │   ├── layout.tsx / page.tsx
+    │   ├── components/SiteChrome.tsx
+    │   ├── lib/api.ts             ← typed client for /api/public/*
+    │   ├── topics/[slug]/         ← collection detail (one per release)
+    │   ├── documents/[slug]/      ← document detail (one per PDF)
+    │   └── agencies/[slug]/       ← source-agency detail
+    ├── scripts/generate-sitemap.mjs   ← runs in `prebuild`
+    └── next.config.ts             ← output: "export", trailingSlash: true
+```
+
+Ignore the `peptidedive.com` references in `frontend/AGENTS.md` and
+`frontend/app/AGENTS.md` — those were copied from the peptidedive template
+and should be treated as stale until rewritten.
+
+---
+
+## 3. Live infrastructure
+
+### 3.1 Production layout
+
+| Surface | Where it runs | DNS | Notes |
+|---|---|---|---|
+| Marketing site | S3 bucket `blackvaultdocs.com` behind CloudFront `E2I87T26ZZLVBA` | `blackvaultdocs.com`, `www.blackvaultdocs.com` → CloudFront | Static export from `frontend/out/`, `aws s3 sync out/ s3://blackvaultdocs.com/ --delete` then CloudFront invalidation. |
+| Public API | Apache + PHP-FPM on the Sites server (`sshnewbe`) | `api.blackvaultdocs.com` → `52.73.80.160` | vhost: `/etc/apache2/sites-enabled/apache-api.blackvaultdocs.com*.conf`. DocumentRoot: `/var/www/blackvaultdocs.com/backend/public`. Let's Encrypt cert auto-renewed by certbot. |
+| Database | Amazon RDS MySQL 8 — `main-instance-1.cf9pnycgvp6w.us-east-1.rds.amazonaws.com`, DB `blackvaultdocs` | (private) | Shared RDS cluster used by every `seo_sites`-style Range site. |
+| Repo on server | `/var/www/blackvaultdocs.com/` owned by `ubuntu:ubuntu` | — | Pulled from `git@github.com:brettev/blackvaultdocs.git` (`main`). |
+
+### 3.2 SSH
+
+The Sites server has a zsh alias defined in the operator's `~/.zshrc`:
+
+```zsh
+alias sshnewbe="ssh -i /Users/brettevanson/Library/CloudStorage/Dropbox-Personal/Sync\ Stuff/newbrettev.cer ubuntu@52.73.80.160"
+```
+
+Always reach the server via `sshnewbe` (or `sshnewbe2` for the secondary IP).
+When running one-liners from the agent, use the full `ssh -i "..." ubuntu@52.73.80.160 "..."` form because `sshnewbe` isn't on the agent's PATH.
+
+### 3.3 Database credentials
+
+**Read/write user (Symfony uses this)**
+
+`backend/.env` ships with:
+
+```
+DATABASE_URL="mysql://seo_sites:RangeSeoSites2026@main-instance-1.cf9pnycgvp6w.us-east-1.rds.amazonaws.com:3306/blackvaultdocs?serverVersion=8.0&charset=utf8mb4"
+```
+
+`seo_sites` is the shared Range service user (also used by peptidedive,
+fatnotmuscle, lobbyvault, etc.). It needs an explicit grant on
+`blackvaultdocs.*`:
+
+```sql
+GRANT ALL PRIVILEGES ON `blackvaultdocs`.* TO `seo_sites`@`%`;
+FLUSH PRIVILEGES;
+```
+
+If you ever see a 500 with
+`Access denied for user 'seo_sites'@'%' to database 'blackvaultdocs'` from
+`api.blackvaultdocs.com`, the grant is missing. Re-apply it as root from
+the server:
+
+```bash
+sshnewbe
+mysql -e 'GRANT ALL PRIVILEGES ON `blackvaultdocs`.* TO "seo_sites"@"%"; FLUSH PRIVILEGES;'
+```
+
+**MySQL root credentials** live in `~ubuntu/.my.cnf` on the Sites server.
+Don't copy them off the server and don't echo them in chat or commits.
+
+A secondary dedicated user `blackvaultdocs_user@%` also exists for
+isolation — currently unused. Prefer `seo_sites` for consistency with the
+rest of the portfolio.
+
+### 3.4 AWS
+
+- **S3 bucket**: `s3://blackvaultdocs.com/` — static site contents. Hosted in `us-east-1`.
+- **CloudFront distribution**: `E2I87T26ZZLVBA` — aliases `blackvaultdocs.com` and `www.blackvaultdocs.com`, origin `blackvaultdocs.com.s3.us-east-1.amazonaws.com`.
+- **RDS cluster**: `main.cluster-cf9pnycgvp6w.us-east-1.rds.amazonaws.com` (writer endpoint), `main-instance-1.cf9pnycgvp6w.us-east-1.rds.amazonaws.com` (single instance endpoint used in `.env`).
+- **ACM / Route 53**: managed via the parent Range AWS account. Certs for `api.blackvaultdocs.com` are Let's Encrypt on the EC2 host; the apex cert is ACM behind CloudFront.
+- **Local AWS CLI context** has `s3:ListBucket`, `s3 sync`, and CloudFront read. The on-server IAM role `FNM-EC2-Deploy` (attached to the EC2 instance) can read S3 but **cannot** list or invalidate CloudFront — always run CloudFront invalidations from a developer laptop.
+
+Deploy from a laptop:
+
+```bash
+cd frontend
+npm ci
+NEXT_PUBLIC_API_BASE=https://api.blackvaultdocs.com npm run build
+aws s3 sync out/ s3://blackvaultdocs.com/ --delete \
+  --cache-control "public, max-age=300, s-maxage=3600"
+aws cloudfront create-invalidation --distribution-id E2I87T26ZZLVBA --paths '/*'
+```
+
+---
+
+## 4. Git + sync flow
+
+- GitHub: `git@github.com:brettev/blackvaultdocs.git`, branch `main`.
+- The server at `/var/www/blackvaultdocs.com/` is a checkout of that repo.
+- Workflow:
+  1. Edit locally.
+  2. `git commit && git push` to GitHub.
+  3. SSH to the server and `git pull` under `/var/www/blackvaultdocs.com/`.
+  4. If backend changed: `composer install --no-dev --optimize-autoloader` and `php bin/console cache:clear --env=prod` (when APP_ENV is flipped to prod). Keep `APP_ENV=dev` only while debugging.
+  5. If frontend changed: build and deploy from a laptop (see §3.4). The server does not build the frontend.
+
+Before declaring work "done", verify:
+
+```bash
+ssh ubuntu@52.73.80.160 "cd /var/www/blackvaultdocs.com && git log --oneline -1"
+# …must match the commit SHA you just pushed to origin/main
+```
+
+---
+
+## 5. Backend (Symfony) conventions
+
+- **APP_ENV** — `dev` on the Sites server today; flip to `prod` once URL
+  routing and the scraper are stable. Remember to `cache:clear --env=prod`
+  and `composer install --no-dev` when switching.
+- **No Doctrine ORM.** Everything goes through `Connection` (DBAL) — see
+  `PublicController` / `ArchivesGovScraper`. Keep that pattern: it's easier
+  to audit query cost when CloudFront fans traffic to the origin.
+- **CORS** comes from `CORS_ALLOW_ORIGIN` in `.env`. It's pinned to the
+  apex + www. Update it there if you add another origin.
+- **Routes** are attribute-based (`#[Route('/api/public')]`). Public reads
+  live under `/api/public/*`. No writes are exposed over HTTP. Ingestion
+  only runs through console commands (`php bin/console app:bvd:scrape`).
+- **Paginated listings** return `{data, total, page, limit, pages}`. Detail
+  endpoints return `{document, topic, agency}` etc. — don't invent a new
+  envelope shape.
+- **Cache headers**: not set yet. CloudFront is only in front of the
+  frontend, not the API, so API responses come straight from Apache. When
+  we put a CDN in front of the API, add `Cache-Control: s-maxage=60, stale-while-revalidate=300` on public GETs.
+
+### 5.1 Schema
+
+`backend/migrations/000_bvd_schema.sql` is the single source of truth.
+Apply it by hand when bootstrapping a new environment:
+
+```bash
+mysql -h main-instance-1.cf9pnycgvp6w.us-east-1.rds.amazonaws.com -u seo_sites -p blackvaultdocs \
+  < backend/migrations/000_bvd_schema.sql
+```
+
+Schema additions = add a new numbered SQL file (`001_*.sql`, `002_*.sql`),
+apply manually, and update this rule.
+
+### 5.2 Scraping
+
+The only implemented scraper today is `ArchivesGovScraper`. It:
+
+- Iterates a hard-coded `TOPICS` list (JFK/RFK/MLK release landing pages).
+- For each landing page, regex-extracts `<a href="*.pdf">...</a>` and
+  upserts one row per PDF.
+- De-duplicates by absolute URL.
+- Uses `INSERT IGNORE` for documents so reruns are idempotent.
+- Paces itself at ~1 request / `delay-ms` (default 2000ms) with ±25%
+  jitter.
+- Writes a `scrape_log` row per run (`started_at` / `finished_at` /
+  `rows_added` / `rows_seen`).
+
+CLI:
+
+```bash
+# Full run, no caps (production):
+cd /var/www/blackvaultdocs.com/backend
+APP_ENV=dev php bin/console app:bvd:scrape --source=archives-gov --delay-ms=2000
+
+# Throttled smoke test:
+APP_ENV=dev php bin/console app:bvd:scrape --source=archives-gov \
+    --max-topics=1 --max-docs=10 --delay-ms=500
+```
+
+Adding a new source = new class in `src/Service/`, new enum branch in
+`ScrapeCommand::execute()`'s `match`, plus `AGENTS.md` entry if the source
+is externally meaningful.
+
+---
+
+## 6. Frontend (Next.js static export) conventions
+
+- **Output is 100% static.** No API routes, no server actions, no
+  middleware. Every dynamic path ships with `generateStaticParams` +
+  `dynamicParams = false`, so unknown slugs 404 at build time.
+- **Trailing slashes everywhere.** `next.config.ts` sets
+  `trailingSlash: true`; every `<Link>` href ends with `/`. Missing the
+  slash serves a 404 through CloudFront.
+- **Data access**: `app/lib/api.ts` wraps the public API with typed,
+  fail-soft getters. Every request returns `null` on error so a flaky API
+  can't break a build. For multi-page fetches, use
+  `listAllDocumentSlugs` (capped at `MAX_STATIC_DOCS`, default 20 000).
+- **Images**: `images: { unoptimized: true }` because `next/image`
+  optimization doesn't work in static export.
+- **Tailwind**: classic v3 setup (`tailwind.config.ts` + `postcss.config.mjs`).
+  If you switch to v4/`@theme`, update this rule.
+- **SEO**:
+  - Every route exports `metadata` or `generateMetadata` with a canonical
+    URL in `alternates.canonical`.
+  - The `prebuild` script writes `public/sitemap.xml` and `public/robots.txt`
+    from the live API — set `MAX_SITEMAP_DOCS` env var to trim if needed.
+  - OpenGraph and Twitter metadata live in `app/layout.tsx` as defaults,
+    overridden per page where it matters.
+- **Styling language**: dark, FOIA-file tone — `bg-gray-950`, red-600
+  accent for "Declassified." Keep cards flat, text mono for identifiers
+  (NARA IDs, slugs), prose for paragraphs. Don't introduce a marketing
+  gradient or rounded pills unless you're intentionally changing the look.
+
+### 6.1 Build + deploy
+
+```bash
+cd frontend
+npm ci
+NEXT_PUBLIC_API_BASE=https://api.blackvaultdocs.com \
+  MAX_STATIC_DOCS=20000 \
+  npm run build      # also runs scripts/generate-sitemap.mjs via prebuild
+aws s3 sync out/ s3://blackvaultdocs.com/ --delete \
+  --cache-control "public, max-age=300, s-maxage=3600"
+aws cloudfront create-invalidation --distribution-id E2I87T26ZZLVBA --paths '/*'
+```
+
+Only deploy from a laptop — the EC2 instance role can't touch CloudFront.
+
+---
+
+## 7. Data ingestion — current status
+
+- **Scheduled cron / systemd timer**: NONE as of 2026-04-20. There is no
+  automated ingestion yet; every fill came from manual `app:bvd:scrape`
+  invocations on the server.
+- **Latest scrape**: id=1, `archives_gov`, completed
+  `2026-04-20 03:55:23 UTC`, 12 614 seen / 12 611 added.
+- **Per-topic counts** (2026-04-20):
+
+  | Topic | Docs |
+  |---|---|
+  | `mlk-release-2025` | 6 302 |
+  | `jfk-release-2025` | 2 706 |
+  | `rfk-release-2025` | 1 969 |
+  | `jfk-release-2021` | 1 484 |
+  | `jfk-release-2017` | 50  (was run with `--max-docs=50`, needs re-run) |
+  | `jfk-release-2022` | 50  (same) |
+  | `jfk-release-2023` | 50  (same) |
+  | `jfk-release-2018` | 0   (URL 404s — collection is actually merged into `release-2017-2018`) |
+
+- **URL drift**: archives.gov redirected most JFK paths. The canonical
+  URLs are now `release-2017-2018`, `release-2021`, `release-2022`,
+  `release-2023`, `release-2025`. Symfony HttpClient follows redirects by
+  default so the scraper still works, but the seed URLs in
+  `ArchivesGovScraper::TOPICS` should be updated to the canonical form so
+  the scrape_log is accurate.
+- **Operational next step**: add a weekly `cron` line on the Sites server
+  that runs:
+
+  ```cron
+  # weekly archives.gov refresh — Monday 09:05 UTC
+  5 9 * * 1 cd /var/www/blackvaultdocs.com/backend && APP_ENV=dev /usr/bin/php bin/console app:bvd:scrape --source=archives-gov --delay-ms=2500 >> /var/log/bvd-scrape.log 2>&1
+  ```
+
+  Run under the `ubuntu` user (owner of the repo checkout).
+
+---
+
+## 8. Known gotchas / footguns
+
+1. **Missing `seo_sites` grant**: the `blackvaultdocs` DB and the
+   `seo_sites` user exist, but the default portfolio bootstrap does NOT
+   auto-grant that user to this DB. If the API dies with
+   `SQLSTATE[HY000] [1044] Access denied for user 'seo_sites'@'%' to
+   database 'blackvaultdocs'`, re-run the GRANT in §3.3.
+2. **`APP_ENV=dev` in production**: the `.env` ships with `APP_ENV=dev`,
+   which renders full Symfony HTML error pages (many KB of HTML) on 500s.
+   Do not run a load test against the API until this is flipped to `prod`
+   and the cache is warmed.
+3. **`AGENTS.md` inside `frontend/`** references peptidedive.com — stale
+   copy from the template, ignore until someone rewrites it.
+4. **CloudFront invalidation is expensive.** The first 1000/month are
+   free, but a `/*` invalidation on every deploy counts as one. Prefer
+   path-specific invalidations (`'/*' is fine here because we deploy
+   rarely; revisit if we move to continuous deploys).
+5. **Static export caps.** `MAX_STATIC_DOCS` (default 20 000) bounds how
+   many `/documents/[slug]/` pages get prebuilt. Current corpus is ~12.6k,
+   so all docs fit. If the corpus grows past 20k, either bump the cap or
+   switch that route to incremental static regeneration (which would
+   force moving off pure static export — non-trivial).
+6. **PDFs are hot-linked.** archives.gov can deprecate URLs. When we
+   detect 404s we should flag the row, not delete it — a future scrape
+   job should do a cheap HEAD check and update a `last_checked_at` column.
+
+---
+
+## 9. Where this file fits in the portfolio rules
+
+The Range SEO engine at `~/Documents/GitHub/range/seo-engine/AGENTS.md`
+documents the cross-site conventions (sites.json, skills/, intelligence
+pipeline, auto-resolver, etc.). BlackVaultDocs is **not** yet wired into
+that pipeline — it has no `skills/<site-id>/intelligence.md`, no entry in
+`sites.json`, and no auto-publish loop. Until that wiring is added,
+assume the SEO engine has nothing to say about this repo; treat this
+`.cursorrules` as authoritative.

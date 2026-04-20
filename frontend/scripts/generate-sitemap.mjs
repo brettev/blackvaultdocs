@@ -23,7 +23,17 @@ const API = (process.env.NEXT_PUBLIC_API_BASE ?? 'https://api.blackvaultdocs.com
 const MAX_DOCUMENTS = Number(process.env.MAX_SITEMAP_DOCS ?? 20000);
 const PAGE_SIZE = 200;
 
-const FIXED_ROUTES = ['/', '/topics/', '/documents/', '/agencies/', '/about/'];
+const FIXED_ROUTES = [
+  '/',
+  '/topics/',
+  '/documents/',
+  '/agencies/',
+  '/search/',
+  '/stats/',
+  '/about/',
+];
+
+const TOPIC_DOCS_PER_PAGE = 100;
 
 async function fetchJson(path) {
   const url = `${API}${path}`;
@@ -37,9 +47,9 @@ async function fetchJson(path) {
   }
 }
 
-async function listTopicSlugs() {
+async function listTopics() {
   const res = await fetchJson('/api/public/topics?limit=500');
-  return (res?.data ?? []).map((t) => t.slug);
+  return res?.data ?? [];
 }
 
 async function listAgencySlugs() {
@@ -76,17 +86,23 @@ async function main() {
   console.log('[sitemap] starting');
   const today = new Date().toISOString().slice(0, 10);
 
-  const [topicSlugs, agencySlugs, docSlugs] = await Promise.all([
-    listTopicSlugs(),
+  const [topics, agencySlugs, docSlugs] = await Promise.all([
+    listTopics(),
     listAgencySlugs(),
     listAllDocumentSlugs(MAX_DOCUMENTS),
   ]);
 
-  console.log(`[sitemap] topics=${topicSlugs.length} agencies=${agencySlugs.length} docs=${docSlugs.length}`);
+  console.log(`[sitemap] topics=${topics.length} agencies=${agencySlugs.length} docs=${docSlugs.length}`);
 
   const urls = [];
   for (const r of FIXED_ROUTES) urls.push(urlTag(r, today));
-  for (const s of topicSlugs) urls.push(urlTag(`/topics/${s}/`, today));
+  for (const t of topics) {
+    urls.push(urlTag(`/topics/${t.slug}/`, today));
+    const pageCount = Math.ceil((t.doc_count || 0) / TOPIC_DOCS_PER_PAGE);
+    for (let p = 2; p <= pageCount; p++) {
+      urls.push(urlTag(`/topics/${t.slug}/page/${p}/`, today));
+    }
+  }
   for (const s of agencySlugs) urls.push(urlTag(`/agencies/${s}/`, today));
   for (const s of docSlugs) urls.push(urlTag(`/documents/${s}/`));
 

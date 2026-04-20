@@ -6,6 +6,7 @@ export const dynamic = 'force-static';
 export default async function Home() {
   const [stats, topics] = await Promise.all([getStats(), listTopics(12)]);
   const topTopics = topics.slice(0, 6);
+  const recent = stats?.recently_indexed?.slice(0, 8) ?? [];
 
   return (
     <main>
@@ -44,10 +45,16 @@ export default async function Home() {
               Browse collections →
             </Link>
             <Link
-              href="/documents/"
+              href="/search/"
               className="inline-flex items-center rounded-md border border-gray-700 px-5 py-2.5 text-sm font-semibold text-gray-200 hover:border-gray-500 hover:text-white"
             >
-              All documents
+              Search the archive
+            </Link>
+            <Link
+              href="/stats/"
+              className="inline-flex items-center rounded-md border border-gray-700 px-5 py-2.5 text-sm font-semibold text-gray-200 hover:border-gray-500 hover:text-white"
+            >
+              Archive stats
             </Link>
           </div>
         </div>
@@ -87,6 +94,39 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      {recent.length > 0 ? (
+        <section className="border-t border-gray-900">
+          <div className="mx-auto max-w-6xl px-6 py-14">
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-2xl font-bold text-white">Recently indexed</h2>
+              <Link href="/stats/" className="text-sm text-gray-400 hover:text-gray-100">
+                Archive stats →
+              </Link>
+            </div>
+            <ul className="mt-6 divide-y divide-gray-800 rounded-md border border-gray-800 bg-gray-900/40">
+              {recent.map((d) => (
+                <li key={d.slug} className="flex items-center gap-4 px-4 py-3">
+                  <Link
+                    href={`/documents/${d.slug}/`}
+                    className="flex-1 truncate font-mono text-sm text-gray-200 hover:text-white"
+                  >
+                    {d.title}
+                  </Link>
+                  {d.topic_slug ? (
+                    <Link
+                      href={`/topics/${d.topic_slug}/`}
+                      className="font-mono text-xs uppercase tracking-widest text-gray-500 hover:text-gray-300"
+                    >
+                      {d.topic_slug}
+                    </Link>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <section className="border-t border-gray-900 bg-gray-900/40">
         <div className="mx-auto max-w-6xl px-6 py-12">

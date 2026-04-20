@@ -45,36 +45,32 @@ final class ArchivesGovScraper
             'slug' => 'jfk-release-2023',
             'name' => 'JFK Assassination Records — 2023 Release',
             'agency' => 'nara',
-            'url' => 'https://www.archives.gov/research/jfk/release2023',
+            'url' => 'https://www.archives.gov/research/jfk/release-2023',
             'description' => 'Files disclosed in 2023 from the President John F. Kennedy Assassination Records Collection, including newly released cables, memoranda, and operational files.',
         ],
         [
             'slug' => 'jfk-release-2022',
             'name' => 'JFK Assassination Records — 2022 Release',
             'agency' => 'nara',
-            'url' => 'https://www.archives.gov/research/jfk/release2022',
+            'url' => 'https://www.archives.gov/research/jfk/release-2022',
             'description' => 'Files disclosed in 2022 from the President John F. Kennedy Assassination Records Collection.',
         ],
         [
             'slug' => 'jfk-release-2021',
             'name' => 'JFK Assassination Records — 2021 Release',
             'agency' => 'nara',
-            'url' => 'https://www.archives.gov/research/jfk/release2021',
+            'url' => 'https://www.archives.gov/research/jfk/release-2021',
             'description' => 'Files disclosed in 2021 from the President John F. Kennedy Assassination Records Collection.',
         ],
         [
-            'slug' => 'jfk-release-2018',
-            'name' => 'JFK Assassination Records — 2018 Release',
-            'agency' => 'nara',
-            'url' => 'https://www.archives.gov/research/jfk/2018-release',
-            'description' => 'Files disclosed in 2018 from the President John F. Kennedy Assassination Records Collection.',
-        ],
-        [
+            // archives.gov folds the 2017 and 2018 releases into a single
+            // landing page. We keep the legacy 2017 slug for URL stability
+            // and call the collection "2017–2018" in the UI.
             'slug' => 'jfk-release-2017',
-            'name' => 'JFK Assassination Records — 2017 Release',
+            'name' => 'JFK Assassination Records — 2017–2018 Release',
             'agency' => 'nara',
-            'url' => 'https://www.archives.gov/research/jfk/2017-release',
-            'description' => 'Files disclosed in 2017 from the President John F. Kennedy Assassination Records Collection.',
+            'url' => 'https://www.archives.gov/research/jfk/release-2017-2018',
+            'description' => 'Files disclosed in 2017 and 2018 from the President John F. Kennedy Assassination Records Collection, merged onto a single archives.gov landing page.',
         ],
         [
             'slug' => 'mlk-release-2025',

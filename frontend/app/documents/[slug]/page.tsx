@@ -14,7 +14,7 @@ const MAX_STATIC_DOCS = Number(process.env.MAX_STATIC_DOCS ?? 20000);
 type Params = { slug: string };
 
 export async function generateStaticParams(): Promise<Params[]> {
-  const slugs = await listAllDocumentSlugs({ max: MAX_STATIC_DOCS, pageSize: 200 });
+  const slugs = await listAllDocumentSlugs({ max: MAX_STATIC_DOCS, pageSize: 500 });
   return slugs.map((slug) => ({ slug }));
 }
 
@@ -24,13 +24,22 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!res) return { title: 'Document not found' };
   const { document: doc, topic, agency } = res;
   const collectionLabel = topic?.name ?? 'National Archives';
+  const agencyLabel = agency?.name ?? 'NARA';
+  const description = [
+    `Declassified ${collectionLabel} document "${doc.title}"`,
+    `released by ${agencyLabel}`,
+    doc.external_id ? `NARA record ${doc.external_id.replace(/^\//, '')}.` : null,
+    'Indexed by BlackVaultDocs — original PDF hosted at archives.gov.',
+  ]
+    .filter(Boolean)
+    .join(' ');
   return {
     title: `${doc.title} · ${collectionLabel}`,
-    description: `Declassified ${collectionLabel} document ${doc.title}${agency ? ` — released by ${agency.name}` : ''}. Indexed by BlackVaultDocs; original PDF hosted at the source archive.`,
+    description,
     alternates: { canonical: `/documents/${doc.slug}/` },
     openGraph: {
-      title: doc.title,
-      description: `Declassified document from the ${collectionLabel} release.`,
+      title: `${doc.title} — ${collectionLabel}`,
+      description,
       type: 'article',
     },
   };
@@ -41,11 +50,18 @@ export default async function DocumentDetailPage({ params }: { params: Promise<P
   const res = await getDocument(slug);
   if (!res) notFound();
   const { document: doc, topic, agency } = res;
+  const prev = res.prev ?? null;
+  const next = res.next ?? null;
+  const related = res.related ?? [];
+
+  const naraId = doc.external_id?.replace(/^\//, '').replace(/\.pdf$/i, '') ?? null;
+  const jsonLd = buildJsonLd({ doc, topic, agency });
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
       <nav className="text-xs font-mono uppercase tracking-widest text-gray-500">
-        <Link href="/" className="hover:text-gray-300">home</Link> /{' '}
+        <Link href="/" className="hover:text-gray-300">home</Link>
+        {' / '}
         <Link href="/documents/" className="hover:text-gray-300">documents</Link>
         {topic ? (
           <>
@@ -61,7 +77,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<P
         {doc.title}
       </h1>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-400">
         {topic ? (
           <Link
             href={`/topics/${topic.slug}/`}
@@ -88,20 +104,40 @@ export default async function DocumentDetailPage({ params }: { params: Promise<P
           <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400">
             Original document
           </h2>
-          <p className="mt-2 text-sm text-gray-300 break-all font-mono">{doc.pdf_url}</p>
-          <a
-            href={doc.pdf_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
-          >
-            Open PDF at source ↗
-          </a>
+          <p className="mt-2 break-all font-mono text-sm text-gray-300">{doc.pdf_url}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <a
+              href={doc.pdf_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
+            >
+              Open PDF at source ↗
+            </a>
+            <a
+              href={doc.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center rounded-md border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-200 hover:border-gray-500 hover:text-white"
+            >
+              View release page ↗
+            </a>
+            {naraId ? (
+              <a
+                href={`https://catalog.archives.gov/search?q=${encodeURIComponent(naraId)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center rounded-md border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-200 hover:border-gray-500 hover:text-white"
+              >
+                NARA catalog search ↗
+              </a>
+            ) : null}
+          </div>
         </div>
       ) : null}
 
       <dl className="mt-8 grid gap-3 rounded-md border border-gray-800 bg-gray-900/40 p-5 text-sm md:grid-cols-2">
-        <MetaRow label="NARA ID" value={doc.external_id} />
+        {naraId ? <MetaRow label="NARA ID" value={naraId} /> : null}
         <MetaRow label="Source" value={doc.source} />
         {topic ? <MetaRow label="Collection" value={topic.name} /> : null}
         {agency ? <MetaRow label="Agency" value={agency.name} /> : null}
@@ -109,25 +145,110 @@ export default async function DocumentDetailPage({ params }: { params: Promise<P
         {doc.released_at ? <MetaRow label="Released" value={doc.released_at} /> : null}
         {doc.page_count ? <MetaRow label="Pages" value={String(doc.page_count)} /> : null}
         {doc.file_size_bytes ? <MetaRow label="Size" value={formatBytes(doc.file_size_bytes)} /> : null}
+        <MetaRow label="Slug" value={doc.slug} />
         <MetaRow label="Indexed" value={doc.scraped_at} />
       </dl>
 
-      {topic?.description ? (
+      {doc.pdf_url ? (
         <section className="mt-10">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400">
-            About the {topic.name} collection
+            In-browser preview
           </h2>
-          <p className="mt-2 text-sm text-gray-300">{topic.description}</p>
-          <p className="mt-3">
+          <p className="mt-2 text-xs text-gray-500">
+            Streamed from archives.gov. If the preview fails to load, use
+            the &quot;Open PDF at source&quot; button above.
+          </p>
+          <div className="mt-3 overflow-hidden rounded-md border border-gray-800 bg-gray-900">
+            <object
+              data={doc.pdf_url}
+              type="application/pdf"
+              className="h-[70vh] w-full"
+              aria-label={`PDF preview of ${doc.title}`}
+            >
+              <div className="p-6 text-sm text-gray-400">
+                Your browser can&apos;t preview PDFs inline.{' '}
+                <a
+                  href={doc.pdf_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-red-400 hover:text-red-300"
+                >
+                  Open the PDF at archives.gov ↗
+                </a>
+              </div>
+            </object>
+          </div>
+        </section>
+      ) : null}
+
+      {(prev || next) && topic ? (
+        <nav className="mt-12 flex flex-col gap-3 border-t border-gray-800 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          {prev ? (
+            <Link
+              href={`/documents/${prev.slug}/`}
+              className="group rounded-md border border-gray-800 bg-gray-900/40 px-4 py-3 text-sm text-gray-300 hover:border-red-800 hover:text-white sm:max-w-[48%]"
+            >
+              <div className="text-[10px] font-mono uppercase tracking-widest text-gray-500">
+                ← Previous in {topic.slug}
+              </div>
+              <div className="mt-1 truncate font-mono">{prev.title}</div>
+            </Link>
+          ) : <span />}
+          {next ? (
+            <Link
+              href={`/documents/${next.slug}/`}
+              className="group rounded-md border border-gray-800 bg-gray-900/40 px-4 py-3 text-right text-sm text-gray-300 hover:border-red-800 hover:text-white sm:max-w-[48%]"
+            >
+              <div className="text-[10px] font-mono uppercase tracking-widest text-gray-500">
+                Next in {topic.slug} →
+              </div>
+              <div className="mt-1 truncate font-mono">{next.title}</div>
+            </Link>
+          ) : <span />}
+        </nav>
+      ) : null}
+
+      {related.length > 0 && topic ? (
+        <section className="mt-12">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400">
+            More from {topic.name}
+          </h2>
+          <ul className="mt-4 grid gap-2 md:grid-cols-2">
+            {related.map((r) => (
+              <li key={r.slug}>
+                <Link
+                  href={`/documents/${r.slug}/`}
+                  className="block rounded-md border border-gray-800 bg-gray-900/40 px-3 py-2 font-mono text-xs text-gray-300 hover:border-red-800 hover:text-white truncate"
+                >
+                  {r.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs text-gray-500">
             <Link
               href={`/topics/${topic.slug}/`}
-              className="text-sm text-red-400 hover:text-red-300"
+              className="text-red-400 hover:text-red-300"
             >
-              Browse other documents in this collection →
+              Browse all {topic.doc_count.toLocaleString()} documents in {topic.name} →
             </Link>
           </p>
         </section>
       ) : null}
+
+      {topic?.description ? (
+        <section className="mt-12 rounded-md border border-gray-800 bg-gray-900/40 p-5">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400">
+            About the {topic.name} collection
+          </h2>
+          <p className="mt-2 text-sm text-gray-300">{topic.description}</p>
+        </section>
+      ) : null}
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     </main>
   );
 }
@@ -147,4 +268,55 @@ function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+type JsonLdInput = {
+  doc: {
+    slug: string;
+    title: string;
+    pdf_url: string | null;
+    source_url: string;
+    released_at: string | null;
+    scraped_at: string;
+    file_size_bytes: number | null;
+    page_count: number | null;
+  };
+  topic: { slug: string; name: string } | null;
+  agency: { slug: string; name: string } | null;
+};
+
+function buildJsonLd({ doc, topic, agency }: JsonLdInput): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'DigitalDocument',
+    '@id': `https://blackvaultdocs.com/documents/${doc.slug}/`,
+    name: doc.title,
+    identifier: doc.slug,
+    url: `https://blackvaultdocs.com/documents/${doc.slug}/`,
+    contentUrl: doc.pdf_url ?? doc.source_url,
+    encodingFormat: 'application/pdf',
+    fileFormat: 'application/pdf',
+    ...(doc.file_size_bytes ? { contentSize: String(doc.file_size_bytes) } : {}),
+    ...(doc.page_count ? { numberOfPages: doc.page_count } : {}),
+    ...(doc.released_at ? { datePublished: doc.released_at } : {}),
+    dateCreated: doc.scraped_at,
+    isPartOf: topic
+      ? {
+          '@type': 'Collection',
+          name: topic.name,
+          url: `https://blackvaultdocs.com/topics/${topic.slug}/`,
+        }
+      : undefined,
+    publisher: agency
+      ? {
+          '@type': 'GovernmentOrganization',
+          name: agency.name,
+          url: `https://blackvaultdocs.com/agencies/${agency.slug}/`,
+        }
+      : {
+          '@type': 'GovernmentOrganization',
+          name: 'National Archives and Records Administration',
+          url: 'https://www.archives.gov/',
+        },
+  };
 }

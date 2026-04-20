@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# blackvaultdocs.com — frontend
 
-## Getting Started
+Next.js 16 App Router app, exported to static HTML and served from S3 +
+CloudFront. Renders the public BlackVaultDocs archive on top of the
+Symfony API at `api.blackvaultdocs.com`.
 
-First, run the development server:
+See the root `.cursorrules` for the full operational manual (server,
+AWS, database, ingestion status) and `frontend/AGENTS.md` for
+frontend-specific conventions.
+
+## Local dev
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm ci
+NEXT_PUBLIC_API_BASE=https://api.blackvaultdocs.com npm run dev
+# open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Set `NEXT_PUBLIC_API_BASE` to any running backend (e.g. `http://localhost:8000`
+when running the Symfony app locally).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build + deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm ci
+NEXT_PUBLIC_API_BASE=https://api.blackvaultdocs.com MAX_STATIC_DOCS=20000 npm run build
+aws s3 sync out/ s3://blackvaultdocs.com/ --delete \
+  --cache-control "public, max-age=300, s-maxage=3600"
+aws cloudfront create-invalidation --distribution-id E2I87T26ZZLVBA --paths '/*'
+```
 
-## Learn More
+Only deploy from a laptop — the EC2 role on `sshnewbe` can't touch
+CloudFront.
 
-To learn more about Next.js, take a look at the following resources:
+## Directory layout
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/
+  layout.tsx / page.tsx              hero + featured collections + recent
+  components/SiteChrome.tsx          header + footer
+  lib/api.ts                         typed API client
+  topics/                            collection index + detail + pagination
+  documents/                         recent index + document detail
+  agencies/                          agency index + detail
+  search/                            static page + client-side filter
+  stats/                             live corpus stats
+scripts/generate-sitemap.mjs         prebuild step (sitemap + robots)
+public/                              static assets (SVGs, sitemap, robots)
+next.config.ts                       static export config
+```
