@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTopic, listTopics } from '../../lib/api';
+import { breadcrumbJsonLd, jsonLdString, SITE_URL } from '../../lib/jsonLd';
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
@@ -44,17 +45,20 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
   const { topic, documents } = res;
   const pages = res.pages ?? Math.max(1, Math.ceil((topic.doc_count || documents.length) / DOCS_PER_PAGE));
 
+  const yearMatch = topic.slug.match(/-(\d{4})$/);
+  const releaseYear = yearMatch ? yearMatch[1] : null;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    '@id': `https://blackvaultdocs.com/topics/${topic.slug}/`,
-    url: `https://blackvaultdocs.com/topics/${topic.slug}/`,
+    '@id': `${SITE_URL}/topics/${topic.slug}/`,
+    url: `${SITE_URL}/topics/${topic.slug}/`,
     name: topic.name,
     description: topic.description,
     isPartOf: {
       '@type': 'WebSite',
       name: 'BlackVaultDocs',
-      url: 'https://blackvaultdocs.com/',
+      url: `${SITE_URL}/`,
     },
     mainEntity: {
       '@type': 'ItemList',
@@ -62,11 +66,17 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
       itemListElement: documents.slice(0, 25).map((d, idx) => ({
         '@type': 'ListItem',
         position: idx + 1,
-        url: `https://blackvaultdocs.com/documents/${d.slug}/`,
+        url: `${SITE_URL}/documents/${d.slug}/`,
         name: d.title,
       })),
     },
   };
+
+  const breadcrumb = breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Collections', path: '/topics/' },
+    { name: topic.name, path: `/topics/${topic.slug}/` },
+  ]);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
@@ -85,17 +95,30 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
             {topic.doc_count.toLocaleString()} documents
           </span>
         </div>
-        {topic.agency_slug ? (
-          <p className="mt-2 text-sm text-gray-400">
-            Source agency:{' '}
-            <Link
-              href={`/agencies/${topic.agency_slug}/`}
-              className="font-mono text-red-400 hover:text-red-300"
-            >
-              {topic.agency_slug}
-            </Link>
-          </p>
-        ) : null}
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-400">
+          {topic.agency_slug ? (
+            <span>
+              Source agency:{' '}
+              <Link
+                href={`/agencies/${topic.agency_slug}/`}
+                className="font-mono text-red-400 hover:text-red-300"
+              >
+                {topic.agency_slug}
+              </Link>
+            </span>
+          ) : null}
+          {releaseYear ? (
+            <span>
+              Release year:{' '}
+              <Link
+                href={`/years/${releaseYear}/`}
+                className="font-mono text-red-400 hover:text-red-300"
+              >
+                {releaseYear}
+              </Link>
+            </span>
+          ) : null}
+        </div>
         {topic.description ? (
           <p className="mt-4 max-w-3xl text-gray-300">{topic.description}</p>
         ) : null}
@@ -155,7 +178,11 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
       />
     </main>
   );

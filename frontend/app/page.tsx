@@ -1,12 +1,33 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { getStats, listTopics } from './lib/api';
+import { breadcrumbJsonLd, jsonLdString } from './lib/jsonLd';
 
 export const dynamic = 'force-static';
 
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
+
+function slugYear(slug: string): string | null {
+  const m = slug.match(/-(\d{4})$/);
+  return m ? m[1] : null;
+}
+
 export default async function Home() {
-  const [stats, topics] = await Promise.all([getStats(), listTopics(12)]);
+  const [stats, topics] = await Promise.all([getStats(), listTopics(500)]);
   const topTopics = topics.slice(0, 6);
   const recent = stats?.recently_indexed?.slice(0, 8) ?? [];
+
+  const yearTotals = new Map<string, number>();
+  for (const t of topics) {
+    const y = slugYear(t.slug);
+    if (!y) continue;
+    yearTotals.set(y, (yearTotals.get(y) ?? 0) + (t.doc_count ?? 0));
+  }
+  const years = [...yearTotals.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+
+  const breadcrumb = breadcrumbJsonLd([{ name: 'Home', path: '/' }]);
 
   return (
     <main>
@@ -49,6 +70,12 @@ export default async function Home() {
               className="inline-flex items-center rounded-md border border-gray-700 px-5 py-2.5 text-sm font-semibold text-gray-200 hover:border-gray-500 hover:text-white"
             >
               Search the archive
+            </Link>
+            <Link
+              href="/years/"
+              className="inline-flex items-center rounded-md border border-gray-700 px-5 py-2.5 text-sm font-semibold text-gray-200 hover:border-gray-500 hover:text-white"
+            >
+              Browse by year
             </Link>
             <Link
               href="/stats/"
@@ -95,6 +122,35 @@ export default async function Home() {
         </div>
       </section>
 
+      {years.length > 0 ? (
+        <section className="border-t border-gray-900">
+          <div className="mx-auto max-w-6xl px-6 py-14">
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-2xl font-bold text-white">Browse by release year</h2>
+              <Link href="/years/" className="text-sm text-gray-400 hover:text-gray-100">
+                All years →
+              </Link>
+            </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-3 md:grid-cols-5">
+              {years.map(([y, n]) => (
+                <Link
+                  key={y}
+                  href={`/years/${y}/`}
+                  className="group rounded-lg border border-gray-800 bg-gray-900/50 p-4 hover:border-red-800 hover:bg-gray-900"
+                >
+                  <div className="text-2xl font-extrabold text-white group-hover:text-white">
+                    {y}
+                  </div>
+                  <div className="mt-1 text-xs font-mono uppercase tracking-widest text-red-500">
+                    {n.toLocaleString()} docs
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {recent.length > 0 ? (
         <section className="border-t border-gray-900">
           <div className="mx-auto max-w-6xl px-6 py-14">
@@ -127,6 +183,11 @@ export default async function Home() {
           </div>
         </section>
       ) : null}
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
+      />
 
       <section className="border-t border-gray-900 bg-gray-900/40">
         <div className="mx-auto max-w-6xl px-6 py-12">

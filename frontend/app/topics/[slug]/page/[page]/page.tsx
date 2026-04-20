@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTopic, listTopics } from '../../../../lib/api';
+import { breadcrumbJsonLd, jsonLdString } from '../../../../lib/jsonLd';
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
@@ -48,6 +49,13 @@ export default async function TopicPageN({ params }: { params: Promise<Params> }
   const { topic, documents } = res;
   const pages = res.pages ?? Math.max(1, Math.ceil((topic.doc_count || 0) / DOCS_PER_PAGE));
   if (n > pages) notFound();
+
+  const breadcrumb = breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Collections', path: '/topics/' },
+    { name: topic.name, path: `/topics/${topic.slug}/` },
+    { name: `Page ${n}`, path: `/topics/${topic.slug}/page/${n}/` },
+  ]);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
@@ -97,6 +105,11 @@ export default async function TopicPageN({ params }: { params: Promise<Params> }
 
         <TopicPagination slug={topic.slug} current={n} pages={pages} />
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
+      />
     </main>
   );
 }

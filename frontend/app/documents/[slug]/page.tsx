@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getDocument, listAllDocumentSlugs } from '../../lib/api';
+import { breadcrumbJsonLd, jsonLdString } from '../../lib/jsonLd';
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
@@ -56,6 +57,14 @@ export default async function DocumentDetailPage({ params }: { params: Promise<P
 
   const naraId = doc.external_id?.replace(/^\//, '').replace(/\.pdf$/i, '') ?? null;
   const jsonLd = buildJsonLd({ doc, topic, agency });
+  const breadcrumb = breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Documents', path: '/documents/' },
+    ...(topic
+      ? [{ name: topic.name, path: `/topics/${topic.slug}/` }]
+      : []),
+    { name: doc.title, path: `/documents/${doc.slug}/` },
+  ]);
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
@@ -247,7 +256,11 @@ export default async function DocumentDetailPage({ params }: { params: Promise<P
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
       />
     </main>
   );

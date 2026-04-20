@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAgency, listAgencies } from '../../lib/api';
+import { breadcrumbJsonLd, jsonLdString } from '../../lib/jsonLd';
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
@@ -32,6 +33,11 @@ export default async function AgencyDetailPage({ params }: { params: Promise<Par
   const res = await getAgency(slug);
   if (!res) notFound();
   const { agency, topics } = res;
+  const breadcrumb = breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Agencies', path: '/agencies/' },
+    { name: agency.name, path: `/agencies/${agency.slug}/` },
+  ]);
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
@@ -76,6 +82,11 @@ export default async function AgencyDetailPage({ params }: { params: Promise<Par
           ))}
         </div>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
+      />
     </main>
   );
 }

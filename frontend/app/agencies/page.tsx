@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { listAgencies } from '../lib/api';
+import { breadcrumbJsonLd, jsonLdString } from '../lib/jsonLd';
 
 export const dynamic = 'force-static';
 
@@ -13,6 +14,10 @@ export const metadata: Metadata = {
 
 export default async function AgenciesIndexPage() {
   const agencies = await listAgencies();
+  const breadcrumb = breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Agencies', path: '/agencies/' },
+  ]);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
@@ -50,6 +55,11 @@ export default async function AgenciesIndexPage() {
           </Link>
         ))}
       </div>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
+      />
     </main>
   );
 }

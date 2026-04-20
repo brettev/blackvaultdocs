@@ -1,0 +1,47 @@
+---
+description: Google Search Console access for blackvaultdocs — shared service-account key lives in the SEO engine
+alwaysApply: true
+---
+
+# Google Search Console (GSC) Access
+
+This repo (`blackvaultdocs`) lives at `seo-engine/repos/blackvaultdocs/` inside the Range monorepo. All GSC queries use the SEO engine's shared service-account credentials.
+
+## This site
+
+- **Site ID:** `blackvaultdocs`
+- **Domain:** `blackvaultdocs.com`
+- **GSC property:** `sc-domain:blackvaultdocs.com` (use this exact `sc-domain:` string with the Search Console API, not a URL)
+
+## Where the service-account JSON lives
+
+Two directories up from this repo:
+
+```
+../../keys/gsc-service-account.json
+```
+
+Absolute path from the range root: `seo-engine/keys/gsc-service-account.json`. The key is **gitignored** — never commit it, paste its contents into chats, or log it. If missing locally, copy it from the Range server (`~/range/seo-engine/keys/`) or 1Password.
+
+## How to query GSC
+
+All access goes through `seo-engine/scripts/lib/gsc.js` (ESM, `googleapis`). It resolves the key via `GSC_KEY_PATH` env or defaults to `./keys/gsc-service-account.json` relative to `seo-engine/`. Scope: `https://www.googleapis.com/auth/webmasters`.
+
+Run one-offs from the SEO engine root:
+
+```bash
+cd ../../  # now inside seo-engine/
+
+# 28-day performance for this site
+node -e "import('./scripts/lib/gsc.js').then(async m => console.log(JSON.stringify(await m.getSitePerformance('sc-domain:blackvaultdocs.com', 28), null, 2)))"
+
+# Submit this site's sitemap
+node -e "import('./scripts/lib/gsc.js').then(m => m.submitSitemap('sc-domain:blackvaultdocs.com', 'https://blackvaultdocs.com/sitemap.xml'))"
+
+# List every property the service account can see
+node -e "import('./scripts/lib/gsc.js').then(async m => console.log(await m.listSites()))"
+```
+
+## Prerequisite (one-time per site)
+
+The service-account email from `gsc-service-account.json` must be added as an **Owner** on `sc-domain:blackvaultdocs.com` in Google Search Console. Without that, every call 403s.

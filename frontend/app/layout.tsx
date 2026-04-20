@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { SiteHeader, SiteFooter } from './components/SiteChrome';
+import { jsonLdString, websiteJsonLd } from './lib/jsonLd';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://blackvaultdocs.com'),
@@ -32,6 +33,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
         <div className="flex-1">{children}</div>
         <SiteFooter />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdString(websiteJsonLd()) }}
+        />
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getStats } from '../lib/api';
+import { breadcrumbJsonLd, jsonLdString } from '../lib/jsonLd';
 
 export const dynamic = 'force-static';
 
@@ -171,6 +172,18 @@ export default async function StatsPage() {
           </ul>
         </section>
       ) : null}
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdString(
+            breadcrumbJsonLd([
+              { name: 'Home', path: '/' },
+              { name: 'Archive stats', path: '/stats/' },
+            ]),
+          ),
+        }}
+      />
     </main>
   );
 }

@@ -26,6 +26,7 @@ const PAGE_SIZE = 200;
 const FIXED_ROUTES = [
   '/',
   '/topics/',
+  '/years/',
   '/documents/',
   '/agencies/',
   '/search/',
@@ -96,12 +97,19 @@ async function main() {
 
   const urls = [];
   for (const r of FIXED_ROUTES) urls.push(urlTag(r, today));
+
+  const years = new Set();
   for (const t of topics) {
     urls.push(urlTag(`/topics/${t.slug}/`, today));
     const pageCount = Math.ceil((t.doc_count || 0) / TOPIC_DOCS_PER_PAGE);
     for (let p = 2; p <= pageCount; p++) {
       urls.push(urlTag(`/topics/${t.slug}/page/${p}/`, today));
     }
+    const y = t.slug.match(/-(\d{4})$/);
+    if (y) years.add(y[1]);
+  }
+  for (const y of [...years].sort()) {
+    urls.push(urlTag(`/years/${y}/`, today));
   }
   for (const s of agencySlugs) urls.push(urlTag(`/agencies/${s}/`, today));
   for (const s of docSlugs) urls.push(urlTag(`/documents/${s}/`));

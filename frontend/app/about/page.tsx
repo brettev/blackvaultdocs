@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { breadcrumbJsonLd, jsonLdString } from '../lib/jsonLd';
 
 export const dynamic = 'force-static';
 
@@ -60,6 +61,18 @@ export default function AboutPage() {
         BlackVaultDocs is not affiliated with any US government agency or with
         The Black Vault (theblackvault.com).
       </p>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdString(
+            breadcrumbJsonLd([
+              { name: 'Home', path: '/' },
+              { name: 'About', path: '/about/' },
+            ]),
+          ),
+        }}
+      />
     </main>
   );
 }

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { buildSearchIndex } from '../lib/api';
+import { breadcrumbJsonLd, jsonLdString } from '../lib/jsonLd';
 import { SearchBox } from './SearchBox';
 
 export const dynamic = 'force-static';
@@ -51,6 +52,18 @@ export default async function SearchPage() {
           </li>
         </ul>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdString(
+            breadcrumbJsonLd([
+              { name: 'Home', path: '/' },
+              { name: 'Search', path: '/search/' },
+            ]),
+          ),
+        }}
+      />
     </main>
   );
 }

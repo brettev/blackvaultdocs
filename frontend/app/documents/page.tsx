@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { listDocuments, listTopics } from '../lib/api';
+import { breadcrumbJsonLd, jsonLdString } from '../lib/jsonLd';
 
 export const dynamic = 'force-static';
 
@@ -18,6 +19,10 @@ export default async function DocumentsIndexPage() {
   ]);
   const docs = listing?.data ?? [];
   const total = listing?.total ?? 0;
+  const breadcrumb = breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Documents', path: '/documents/' },
+  ]);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
@@ -89,6 +94,11 @@ export default async function DocumentsIndexPage() {
           ))}
         </ul>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
+      />
     </main>
   );
 }
