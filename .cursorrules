@@ -277,39 +277,51 @@ Only deploy from a laptop — the EC2 instance role can't touch CloudFront.
 
 ## 7. Data ingestion — current status
 
-- **Scheduled cron / systemd timer**: NONE as of 2026-04-20. There is no
-  automated ingestion yet; every fill came from manual `app:bvd:scrape`
-  invocations on the server.
-- **Latest scrape**: id=1, `archives_gov`, completed
-  `2026-04-20 03:55:23 UTC`, 12 614 seen / 12 611 added.
-- **Per-topic counts** (2026-04-20):
-
-  | Topic | Docs |
-  |---|---|
-  | `mlk-release-2025` | 6 302 |
-  | `jfk-release-2025` | 2 706 |
-  | `rfk-release-2025` | 1 969 |
-  | `jfk-release-2021` | 1 484 |
-  | `jfk-release-2017` | 50  (was run with `--max-docs=50`, needs re-run) |
-  | `jfk-release-2022` | 50  (same) |
-  | `jfk-release-2023` | 50  (same) |
-  | `jfk-release-2018` | 0   (URL 404s — collection is actually merged into `release-2017-2018`) |
-
-- **URL drift**: archives.gov redirected most JFK paths. The canonical
-  URLs are now `release-2017-2018`, `release-2021`, `release-2022`,
-  `release-2023`, `release-2025`. Symfony HttpClient follows redirects by
-  default so the scraper still works, but the seed URLs in
-  `ArchivesGovScraper::TOPICS` should be updated to the canonical form so
-  the scrape_log is accurate.
-- **Operational next step**: add a weekly `cron` line on the Sites server
-  that runs:
+- **Scheduled cron** (installed 2026-04-20, `ubuntu` crontab):
 
   ```cron
-  # weekly archives.gov refresh — Monday 09:05 UTC
-  5 9 * * 1 cd /var/www/blackvaultdocs.com/backend && APP_ENV=dev /usr/bin/php bin/console app:bvd:scrape --source=archives-gov --delay-ms=2500 >> /var/log/bvd-scrape.log 2>&1
+  # weekly archives.gov refresh — Monday 04:00 UTC
+  0 4 * * 1 cd /var/www/blackvaultdocs.com/backend && /usr/bin/php bin/console app:bvd:scrape --source=archives-gov --delay-ms=2500 >> /var/log/bvd-scrape.log 2>&1
   ```
 
-  Run under the `ubuntu` user (owner of the repo checkout).
+  Log file: `/var/log/bvd-scrape.log` (owned by `ubuntu:ubuntu`).
+
+- **Latest full rescrape**: 2026-04-20, `docs_seen=12614 / docs_added=0`
+  against an already-populated DB (12 611 rows). The scraper is
+  idempotent via `INSERT IGNORE`, so reruns are safe.
+
+- **Per-topic counts** (2026-04-20, canonical URLs after TOPICS fix):
+
+  | Topic | Docs | Source landing page |
+  |---|---|---|
+  | `mlk-release-2025`  | 6 302 | `/research/mlk/release-2025` |
+  | `jfk-release-2025`  | 2 706 | `/research/jfk/release-2025` |
+  | `rfk-release-2025`  | 1 969 | `/research/rfk/release-2025` |
+  | `jfk-release-2021`  | 1 484 | `/research/jfk/release-2021` |
+  | `jfk-release-2017`  |    50 | `/research/jfk/release-2017-2018` (merged collection) |
+  | `jfk-release-2022`  |    50 | `/research/jfk/release-2022` |
+  | `jfk-release-2023`  |    50 | `/research/jfk/release-2023` |
+
+  The 50-doc topics are **not** a `--max-docs` cap — re-running with no
+  flags still yields 50. Those landing pages link directly to ~50 PDFs
+  each; the rest of the collection is reachable only via a downloadable
+  CSV/XLSX index file hosted elsewhere. Future work: teach
+  `ArchivesGovScraper` to parse those index files (issue a HEAD for the
+  XLSX, parse with PhpSpreadsheet, enqueue PDFs from the `URL` column).
+
+- **URL drift**: archives.gov redirected most JFK paths during 2025-2026.
+  `release-2017-2018` is the canonical merged collection — the old
+  `release-2017` + `release-2018` URLs 404 independently. `TOPICS` in
+  `ArchivesGovScraper` now uses canonical URLs.
+
+- **Operational next steps** (tracked as issues, not blockers):
+  1. Scrape downloadable index files (CSV/XLSX) to unlock the long tail
+     of jfk-release-2017/2022/2023 documents (currently 50 each, should
+     be thousands).
+  2. Flip `APP_ENV` to `prod` and run `php bin/console cache:clear --env=prod`
+     once routes and scraper are stable.
+  3. Add a nightly `HEAD` health check on stored PDF URLs and flag stale
+     rows instead of deleting them.
 
 ---
 
