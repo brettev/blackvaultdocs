@@ -1,22 +1,144 @@
-export default function Home() {
+import Link from 'next/link';
+import { getStats, listTopics } from './lib/api';
+
+export const dynamic = 'force-static';
+
+export default async function Home() {
+  const [stats, topics] = await Promise.all([getStats(), listTopics(12)]);
+  const topTopics = topics.slice(0, 6);
+
   return (
-    <main className="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center p-6">
-      <div className="max-w-3xl text-center">
-        <h1 className="text-5xl font-extrabold tracking-tight">
-          BlackVaultDocs
-        </h1>
-        <p className="mt-2 text-sm uppercase tracking-widest text-gray-400">
-          Declassified. Structured. Searchable.
-        </p>
-        <p className="mt-6 text-lg text-gray-300">
-          A machine-readable archive of declassified US government documents,
-          FOIA releases, and open intelligence disclosures &mdash; with
-          thematic analysis surfaced across the full corpus.
-        </p>
-        <p className="mt-10 text-sm text-gray-500 font-mono">
-          Status: archive bootstrapping
-        </p>
-      </div>
+    <main>
+      <section className="border-b border-gray-900 bg-gradient-to-b from-gray-950 via-gray-950 to-gray-900">
+        <div className="mx-auto max-w-6xl px-6 py-16">
+          <p className="font-mono text-xs uppercase tracking-[0.35em] text-red-500">
+            Declassified. Indexed. Searchable.
+          </p>
+          <h1 className="mt-4 text-5xl font-extrabold tracking-tight text-white md:text-6xl">
+            The black vault, structured.
+          </h1>
+          <p className="mt-6 max-w-2xl text-lg text-gray-300">
+            BlackVaultDocs is a machine-readable index of declassified US
+            government records — JFK, RFK, MLK, and other FOIA-released
+            collections. Every document links directly to the original PDF at
+            the National Archives, with structured metadata so researchers,
+            journalists, and LLMs can reason over the full corpus.
+          </p>
+
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StatTile label="Documents" value={stats?.total_documents ?? 0} />
+            <StatTile label="Collections" value={stats?.total_topics ?? 0} />
+            <StatTile label="Agencies" value={stats?.total_agencies ?? 0} />
+            <StatTile
+              label="Last updated"
+              value={stats?.last_scrape?.finished_at ? formatDate(stats.last_scrape.finished_at) : '—'}
+              mono
+            />
+          </div>
+
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Link
+              href="/topics/"
+              className="inline-flex items-center rounded-md bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-500"
+            >
+              Browse collections →
+            </Link>
+            <Link
+              href="/documents/"
+              className="inline-flex items-center rounded-md border border-gray-700 px-5 py-2.5 text-sm font-semibold text-gray-200 hover:border-gray-500 hover:text-white"
+            >
+              All documents
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-14">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-2xl font-bold text-white">Featured collections</h2>
+          <Link href="/topics/" className="text-sm text-gray-400 hover:text-gray-100">
+            All collections →
+          </Link>
+        </div>
+        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {topTopics.map((t) => (
+            <Link
+              key={t.slug}
+              href={`/topics/${t.slug}/`}
+              className="group rounded-lg border border-gray-800 bg-gray-900/50 p-5 hover:border-red-800 hover:bg-gray-900"
+            >
+              <div className="flex items-start justify-between">
+                <h3 className="text-lg font-semibold text-gray-100 group-hover:text-white">
+                  {t.name}
+                </h3>
+                <span className="font-mono text-xs text-red-500">
+                  {t.doc_count.toLocaleString()}
+                </span>
+              </div>
+              {t.description ? (
+                <p className="mt-2 line-clamp-3 text-sm text-gray-400">
+                  {t.description}
+                </p>
+              ) : null}
+              <div className="mt-4 text-xs font-mono uppercase tracking-widest text-gray-500">
+                {t.agency_slug ?? 'unclassified'} //
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-t border-gray-900 bg-gray-900/40">
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          <h2 className="text-2xl font-bold text-white">Why this archive exists</h2>
+          <div className="mt-4 grid gap-6 md:grid-cols-3 text-sm text-gray-400">
+            <div>
+              <h3 className="text-gray-200 font-semibold">Structured, not scanned</h3>
+              <p className="mt-2">
+                Every PDF has a canonical slug, source URL, agency, and
+                collection tag — so queries beat keyword search on the
+                originating release pages.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-gray-200 font-semibold">Original sources only</h3>
+              <p className="mt-2">
+                We link directly to the PDFs hosted by the National Archives.
+                No re-uploads, no mirrors — you always see the primary source.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-gray-200 font-semibold">Built for discovery</h3>
+              <p className="mt-2">
+                Fast, static pages crawlable by humans and LLMs. Use the
+                collection and agency indexes as your jumping-off points.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   );
+}
+
+function StatTile({ label, value, mono = false }: { label: string; value: number | string; mono?: boolean }) {
+  const display = typeof value === 'number' ? value.toLocaleString() : value;
+  return (
+    <div className="rounded-md border border-gray-800 bg-gray-900/60 p-4">
+      <div className="text-[10px] font-mono uppercase tracking-widest text-gray-500">
+        {label}
+      </div>
+      <div className={`mt-1 text-2xl font-bold text-gray-100 ${mono ? 'font-mono text-lg' : ''}`}>
+        {display}
+      </div>
+    </div>
+  );
+}
+
+function formatDate(s: string): string {
+  try {
+    return new Date(s.replace(' ', 'T') + 'Z').toISOString().slice(0, 10);
+  } catch {
+    return s.slice(0, 10);
+  }
 }

@@ -33,6 +33,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# generated at build time by scripts/generate-sitemap.mjs
+/public/sitemap.xml
+/public/robots.txt
+
 # vercel
 .vercel
 
