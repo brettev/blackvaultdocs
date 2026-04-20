@@ -269,6 +269,14 @@ final class OigDojScraper implements ScraperInterface
 
     private function componentSlug(string $name): string
     {
+        // DOJ lists reports that span multiple components by writing out the
+        // full comma-separated list in the single Component(s) field (e.g.
+        // "Drug Enforcement Administration, Federal Bureau of Investigation").
+        // Route all of those into one bucket rather than exploding them into
+        // one-off long-slug topics.
+        if (str_contains($name, ',')) {
+            return 'multiple-components';
+        }
         $norm = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $name) ?? 'other');
         $norm = trim($norm, '-');
         // Collapse obvious long names to canonical short keys.
@@ -278,6 +286,7 @@ final class OigDojScraper implements ScraperInterface
             'federal-bureau-of-prisons' => 'bop',
             'u-s-marshals-service' => 'usms',
             'us-marshals-service' => 'usms',
+            'united-states-marshals-service' => 'usms',
             'office-of-justice-programs' => 'ojp',
             'bureau-of-alcohol-tobacco-firearms-and-explosives' => 'atf',
             'office-on-violence-against-women' => 'ovw',
