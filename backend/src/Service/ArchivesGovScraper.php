@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use Doctrine\DBAL\Connection;
+use App\Ingestion\Dto\ScrapedAgency;
+use App\Ingestion\Dto\ScrapedDocument;
+use App\Ingestion\Dto\ScrapedTopic;
+use App\Ingestion\ScraperInterface;
+use App\Ingestion\Sink\SinkInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -12,27 +16,22 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * Paced scraper for archives.gov declassified-document "release" pages.
  *
  * archives.gov publishes a handful of canonical landing pages per collection
- * (JFK 2017, 2018, 2021, 2022, 2023, 2025; MLK 2025; Nixon; etc.) where every
+ * (JFK 2017, 2018, 2021, 2022, 2023, 2025; MLK 2025; RFK 2025) where every
  * released PDF is linked directly from a single HTML page. Those pages act
  * as perfect "topic" anchors for BlackVaultDocs:
  *  - topic = the release landing page
- *  - document = each linked PDF with its visible label
+ *  - document = each linked PDF with its visible label / filename stem
  *
  * Unlike vault.fbi.gov, archives.gov does not 403 AWS egress IPs, so we can
  * scrape politely with a normal HTTP client. Default pace is 1 request / 2s
- * with jitter so that we don't form a periodic fingerprint or hammer the
- * upstream CDN.
+ * with jitter so we don't form a periodic fingerprint or hammer the upstream
+ * CDN.
  */
-final class ArchivesGovScraper
+final class ArchivesGovScraper implements ScraperInterface
 {
-    private const SOURCE = 'archives_gov';
+    private const SOURCE = 'archives-gov';
     private const BASE_URL = 'https://www.archives.gov';
 
-    /**
-     * Seed topic pages. Each row is:
-     *   [slug, name, agency_slug, url, description]
-     * Slugs are stable and used as DB keys.
-     */
     private const TOPICS = [
         [
             'slug' => 'jfk-release-2025',
@@ -97,19 +96,29 @@ final class ArchivesGovScraper
 
     public function __construct(
         private readonly HttpClientInterface $http,
-        private readonly Connection $conn,
         private readonly LoggerInterface $logger,
     ) {
     }
 
-    public function run(int $maxTopics = 0, int $maxDocsPerTopic = 0, int $delayMs = 2000): array
+    public function sourceKey(): string
     {
-        $this->ensureAgencies();
-        $logId = $this->startLog('scrape', 'archives.gov');
+        return self::SOURCE;
+    }
+
+    public function run(SinkInterface $sink, array $options = []): array
+    {
+        $maxTopics = (int) ($options['max_topics'] ?? 0);
+        $maxDocs   = (int) ($options['max_docs_per_topic'] ?? 0);
+        $delayMs   = (int) ($options['delay_ms'] ?? 2000);
+        $progress  = $options['progress'] ?? null;
+
+        foreach (self::AGENCIES as $slug => $meta) {
+            $sink->writeAgency(new ScrapedAgency($slug, $meta['name'], $meta['description']));
+        }
 
         $topics = self::TOPICS;
         if ($maxTopics > 0) {
-            $topics = array_slice($topics, 0, $maxTopics);
+            $topics = \array_slice($topics, 0, $maxTopics);
         }
 
         $docsAdded = 0;
@@ -118,19 +127,17 @@ final class ArchivesGovScraper
 
         foreach ($topics as $topic) {
             try {
-                [$seen, $added] = $this->scrapeTopic($topic, $maxDocsPerTopic);
+                [$seen, $added] = $this->scrapeTopic($sink, $topic, $maxDocs);
                 $docsSeen += $seen;
                 $docsAdded += $added;
                 $topicsProcessed++;
-                $this->logger->info(sprintf(
+                $this->logger->info(\sprintf(
                     '[archives-gov] topic %s — seen=%d added=%d',
                     $topic['slug'], $seen, $added,
                 ));
-
-                $this->conn->executeStatement(
-                    'UPDATE scrape_log SET rows_added = ?, rows_seen = ? WHERE id = ?',
-                    [$docsAdded, $docsSeen, $logId],
-                );
+                if (\is_callable($progress)) {
+                    $progress($topic['slug'], $docsAdded, $docsSeen);
+                }
             } catch (\Throwable $e) {
                 $this->logger->error('[archives-gov] topic failed {slug}: {msg}', [
                     'slug' => $topic['slug'], 'msg' => $e->getMessage(),
@@ -140,9 +147,6 @@ final class ArchivesGovScraper
             $this->sleep($delayMs);
         }
 
-        $this->finishLog($logId, 'completed', $docsAdded, $docsSeen);
-        $this->refreshCounts();
-
         return [
             'topics' => $topicsProcessed,
             'docs_seen' => $docsSeen,
@@ -151,21 +155,22 @@ final class ArchivesGovScraper
     }
 
     /**
-     * Scrape a single archives.gov release page. Treats every linked PDF on
-     * the page as an individual document row.
+     * @return array{0:int,1:int} [seen, added]
      */
-    private function scrapeTopic(array $topic, int $maxDocs): array
+    private function scrapeTopic(SinkInterface $sink, array $topic, int $maxDocs): array
     {
         $html = $this->fetchHtml($topic['url']);
         if ($html === null) {
             return [0, 0];
         }
 
-        $this->upsertTopic($topic['slug'], $topic['name'], $topic['description'] ?? null, $topic['agency']);
+        $sink->writeTopic(new ScrapedTopic(
+            slug: $topic['slug'],
+            name: $topic['name'],
+            description: $topic['description'] ?? null,
+            agencySlug: $topic['agency'],
+        ));
 
-        // Parse <a> tags pointing at PDFs. archives.gov always exposes the
-        // visible label as the anchor text; if the label is empty (icon-only
-        // link) we fall back to the filename.
         preg_match_all(
             '#<a[^>]+href="([^"]+\.pdf)"[^>]*>(.*?)</a>#is',
             $html,
@@ -182,10 +187,7 @@ final class ArchivesGovScraper
             $label = $this->tidyText($m[2]);
 
             $abs = $this->absoluteUrl($topic['url'], $href);
-            if ($abs === null) {
-                continue;
-            }
-            if (isset($dedupe[$abs])) {
+            if ($abs === null || isset($dedupe[$abs])) {
                 continue;
             }
             $dedupe[$abs] = true;
@@ -199,7 +201,7 @@ final class ArchivesGovScraper
             // Prefer the filename stem, which for the Kennedy releases
             // encodes the NARA Record Identification Number (e.g.
             // "104-10020-10016") — the canonical handle researchers use.
-            if ($label === '' || strlen($label) < 6 || strcasecmp($label, 'PDF') === 0) {
+            if ($label === '' || \strlen($label) < 6 || \strcasecmp($label, 'PDF') === 0) {
                 $label = $filenameStem;
             }
 
@@ -208,102 +210,21 @@ final class ArchivesGovScraper
                 break;
             }
 
-            $docSlug = $this->slugifyFromUrl($externalId, $topic['slug']);
-
-            $inserted = $this->upsertDocument([
-                'slug' => $docSlug,
-                'source' => self::SOURCE,
-                'external_id' => $externalId,
-                'title' => $label,
-                'summary' => null,
-                'source_url' => $abs,
-                'pdf_url' => $abs,
-                'topic_slug' => $topic['slug'],
-                'agency_slug' => $topic['agency'],
-                'classification' => null,
-                'released_at' => null,
-            ]);
-            $added += $inserted;
+            $doc = new ScrapedDocument(
+                slug: $this->slugifyFromUrl($externalId, $topic['slug']),
+                source: self::SOURCE,
+                externalId: $externalId,
+                title: $label,
+                summary: null,
+                sourceUrl: $abs,
+                pdfUrl: $abs,
+                topicSlug: $topic['slug'],
+                agencySlug: $topic['agency'],
+            );
+            $added += $sink->writeDocument($doc);
         }
 
         return [$seen, $added];
-    }
-
-    private function upsertTopic(string $slug, string $name, ?string $description, string $agencySlug): void
-    {
-        $this->conn->executeStatement(
-            'INSERT INTO topics (slug, name, description, agency_slug)
-             VALUES (:slug, :name, :desc, :agency)
-             ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description), agency_slug = VALUES(agency_slug)',
-            [
-                'slug' => $slug,
-                'name' => mb_substr($name, 0, 255),
-                'desc' => $description !== null ? mb_substr($description, 0, 2000) : null,
-                'agency' => $agencySlug,
-            ],
-        );
-    }
-
-    private function upsertDocument(array $row): int
-    {
-        $affected = $this->conn->executeStatement(
-            'INSERT IGNORE INTO documents
-                (slug, source, external_id, title, summary, source_url, pdf_url,
-                 topic_slug, agency_slug, classification, released_at)
-             VALUES
-                (:slug, :source, :extid, :title, :summary, :surl, :purl,
-                 :topic, :agency, :cls, :released)',
-            [
-                'slug' => mb_substr($row['slug'], 0, 220),
-                'source' => $row['source'],
-                'extid' => mb_substr($row['external_id'], 0, 255),
-                'title' => mb_substr($row['title'], 0, 500),
-                'summary' => $row['summary'],
-                'surl' => mb_substr($row['source_url'], 0, 1000),
-                'purl' => $row['pdf_url'] !== null ? mb_substr($row['pdf_url'], 0, 1000) : null,
-                'topic' => $row['topic_slug'],
-                'agency' => $row['agency_slug'],
-                'cls' => $row['classification'],
-                'released' => $row['released_at'],
-            ],
-        );
-        return (int) $affected > 0 ? 1 : 0;
-    }
-
-    private function ensureAgencies(): void
-    {
-        foreach (self::AGENCIES as $slug => $meta) {
-            $this->conn->executeStatement(
-                'INSERT INTO agencies (slug, name, description)
-                 VALUES (:slug, :name, :desc)
-                 ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description)',
-                [
-                    'slug' => $slug,
-                    'name' => $meta['name'],
-                    'desc' => $meta['description'],
-                ],
-            );
-        }
-    }
-
-    public function refreshCounts(): void
-    {
-        $this->conn->executeStatement(
-            'UPDATE topics t
-             LEFT JOIN (
-                SELECT topic_slug, COUNT(*) AS n FROM documents
-                WHERE topic_slug IS NOT NULL GROUP BY topic_slug
-             ) d ON d.topic_slug = t.slug
-             SET t.doc_count = IFNULL(d.n, 0)'
-        );
-        $this->conn->executeStatement(
-            'UPDATE agencies a
-             LEFT JOIN (
-                SELECT agency_slug, COUNT(*) AS n FROM documents
-                WHERE agency_slug IS NOT NULL GROUP BY agency_slug
-             ) d ON d.agency_slug = a.slug
-             SET a.doc_count = IFNULL(d.n, 0)'
-        );
     }
 
     private function fetchHtml(string $url): ?string
@@ -331,23 +252,6 @@ final class ArchivesGovScraper
         }
     }
 
-    private function startLog(string $task, ?string $url): int
-    {
-        $this->conn->executeStatement(
-            'INSERT INTO scrape_log (source, task, url, status) VALUES (?, ?, ?, ?)',
-            [self::SOURCE, $task, $url, 'running'],
-        );
-        return (int) $this->conn->lastInsertId();
-    }
-
-    private function finishLog(int $id, string $status, int $added, int $seen, ?string $error = null): void
-    {
-        $this->conn->executeStatement(
-            'UPDATE scrape_log SET status = ?, rows_added = ?, rows_seen = ?, error = ?, finished_at = NOW() WHERE id = ?',
-            [$status, $added, $seen, $error, $id],
-        );
-    }
-
     private function tidyText(string $s): string
     {
         $s = html_entity_decode($s, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
@@ -362,8 +266,7 @@ final class ArchivesGovScraper
         $tail = preg_replace('/\.pdf$/i', '', $tail) ?? $tail;
         $slug = $topicSlug . '-' . $tail;
         $slug = preg_replace('/[^a-z0-9-]+/i', '-', strtolower($slug)) ?: 'doc';
-        $slug = substr(trim($slug, '-'), 0, 220);
-        return $slug;
+        return substr(trim($slug, '-'), 0, 220);
     }
 
     private function absoluteUrl(string $base, string $href): ?string

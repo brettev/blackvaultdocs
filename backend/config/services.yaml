@@ -18,6 +18,13 @@ services:
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
+            - '../src/Ingestion/Dto/'
             - '../src/Kernel.php'
+
+    # Auto-tag every scraper so ScraperRegistry can collect them via the
+    # AutowireIterator(ScraperInterface::class) attribute.
+    _instanceof:
+        App\Ingestion\ScraperInterface:
+            tags: ['App\Ingestion\ScraperInterface']
 
 

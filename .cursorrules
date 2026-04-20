@@ -153,7 +153,7 @@ aws cloudfront create-invalidation --distribution-id E2I87T26ZZLVBA --paths '/*'
   1. Edit locally.
   2. `git commit && git push` to GitHub.
   3. SSH to the server and `git pull` under `/var/www/blackvaultdocs.com/`.
-  4. If backend changed: `composer install --no-dev --optimize-autoloader` and `php bin/console cache:clear --env=prod` (when APP_ENV is flipped to prod). Keep `APP_ENV=dev` only while debugging.
+  4. If backend changed: `composer install --no-dev --optimize-autoloader` and `php bin/console cache:clear --env=prod`.
   5. If frontend changed: build and deploy from a laptop (see §3.4). The server does not build the frontend.
 
 Before declaring work "done", verify:
@@ -167,9 +167,9 @@ ssh ubuntu@52.73.80.160 "cd /var/www/blackvaultdocs.com && git log --oneline -1"
 
 ## 5. Backend (Symfony) conventions
 
-- **APP_ENV** — `dev` on the Sites server today; flip to `prod` once URL
-  routing and the scraper are stable. Remember to `cache:clear --env=prod`
-  and `composer install --no-dev` when switching.
+- **APP_ENV** — `prod` on the server (flipped 2026-04-20). Run
+  `cache:clear --env=prod` after pulls that touch `config/` or
+  attribute-routed controllers.
 - **No Doctrine ORM.** Everything goes through `Connection` (DBAL) — see
   `PublicController` / `ArchivesGovScraper`. Keep that pattern: it's easier
   to audit query cost when CloudFront fans traffic to the origin.
@@ -198,35 +198,93 @@ mysql -h main-instance-1.cf9pnycgvp6w.us-east-1.rds.amazonaws.com -u seo_sites -
 Schema additions = add a new numbered SQL file (`001_*.sql`, `002_*.sql`),
 apply manually, and update this rule.
 
-### 5.2 Scraping
+### 5.2 Scraping architecture
 
-The only implemented scraper today is `ArchivesGovScraper`. It:
+All scrapers implement `App\Ingestion\ScraperInterface` and emit three
+DTO types (`ScrapedAgency`, `ScrapedTopic`, `ScrapedDocument`) to a
+`SinkInterface`. Two sinks ship:
 
-- Iterates a hard-coded `TOPICS` list (JFK/RFK/MLK release landing pages).
-- For each landing page, regex-extracts `<a href="*.pdf">...</a>` and
-  upserts one row per PDF.
-- De-duplicates by absolute URL.
-- Uses `INSERT IGNORE` for documents so reruns are idempotent.
-- Paces itself at ~1 request / `delay-ms` (default 2000ms) with ±25%
-  jitter.
-- Writes a `scrape_log` row per run (`started_at` / `finished_at` /
-  `rows_added` / `rows_seen`).
+- **`DbSink`** — upserts directly into MySQL. `INSERT IGNORE` on
+  documents, `ON DUPLICATE KEY UPDATE` on topics/agencies. Aggregate
+  `doc_count` columns are recomputed once per run in `finish()`.
+- **`JsonlSink`** — writes newline-delimited JSON to a file. Used when
+  the source can't be reached from AWS (see §5.3) so we scrape from a
+  laptop and replay on the server.
+
+Sources register themselves via `_instanceof` autoconfiguration in
+`services.yaml` and are resolved by key through `ScraperRegistry`. Adding
+a new source = drop a class in `src/Service/` implementing the interface;
+no other wiring required.
+
+Currently registered (`php bin/console app:bvd:scrape --list`):
+
+| Key | Class | Coverage |
+|---|---|---|
+| `archives-gov` | `ArchivesGovScraper` | ~12 600 docs · JFK/RFK/MLK NARA release pages |
+| `oig-doj` | `OigDojScraper` | ~3 100 DOJ OIG audits/investigations, topic = DOJ component (FBI, DEA, ATF, BOP, USMS, …) |
 
 CLI:
 
 ```bash
-# Full run, no caps (production):
 cd /var/www/blackvaultdocs.com/backend
-APP_ENV=dev php bin/console app:bvd:scrape --source=archives-gov --delay-ms=2000
+
+# List registered sources
+php bin/console app:bvd:scrape --list
+
+# Full run against the DB (production cron / manual refresh):
+php bin/console app:bvd:scrape --source=archives-gov --delay-ms=2500
 
 # Throttled smoke test:
-APP_ENV=dev php bin/console app:bvd:scrape --source=archives-gov \
-    --max-topics=1 --max-docs=10 --delay-ms=500
+php bin/console app:bvd:scrape --source=oig-doj \
+    --max-topics=2 --delay-ms=500
+
+# Local capture (laptop) for a source that 403s from AWS:
+php bin/console app:bvd:scrape --source=fbi-vault \
+    --output=/tmp/fbi.jsonl --delay-ms=2500
+scp /tmp/fbi.jsonl sshnewbe:/tmp/
+
+# Replay the capture on the server (idempotent):
+php bin/console app:bvd:import --from-jsonl=/tmp/fbi.jsonl
 ```
 
-Adding a new source = new class in `src/Service/`, new enum branch in
-`ScrapeCommand::execute()`'s `match`, plus `AGENTS.md` entry if the source
-is externally meaningful.
+`--max-topics` is repurposed per scraper — for paginated sources (DOJ
+OIG) it caps listing pages rather than topics.
+
+### 5.3 FBI Vault / Cloudflare-gated sources
+
+Tested 2026-04-20: `vault.fbi.gov`, `www.fbi.gov/services/records-management`,
+`efoia.fbi.gov`, and `muckrock.com` all return `HTTP/2 403` with
+`cf-mitigated: challenge` to any non-browser client. **This is Cloudflare's
+managed JS challenge, not an IP block** — the same 403 is served to both
+`52.73.80.160` (EC2) and my residential Comcast IP. Plain `curl` / Guzzle
+/ Symfony HttpClient cannot pass.
+
+To actually ingest these sources, we need a real browser:
+
+1. Playwright-based scraper (Node.js, with `playwright-extra` + stealth
+   plugin). Solves the challenge, harvests `cf_clearance` + `__cf_bm`
+   cookies, crawls with those cookies. Output: JSONL.
+2. Transfer the JSONL and replay via `app:bvd:import` — the PHP side
+   never touches fbi.gov.
+
+This is tracked as a future source (key `fbi-vault`). Not started as of
+this writing; the pipeline (`JsonlSink` + `ImportCommand`) is ready.
+
+### 5.4 Scraper roadmap
+
+Queued in priority order:
+
+1. **NARA Catalog API v2** (`https://catalog.archives.gov/api/v2/records/search`).
+   Free API key from NARA Catalog engineers via email. JSON responses,
+   `x-api-key` header auth. Orders-of-magnitude content multiplier over
+   the archives.gov landing-page scraper.
+2. **CIA CREST bulk dataset** (archive.org has the full ~1.4M-record
+   release as a downloadable corpus — no scraping, just parse + import).
+3. **nsarchive.gwu.edu** — GWU's curated National Security Archive.
+   Plain Apache, scrapable; best source for thematic collections.
+4. **foia.state.gov** — State Department historical cables. Open IIS
+   backend. Large (3M+ records) but needs careful query design.
+5. **FBI Vault** — Playwright path above, once the rest are landed.
 
 ---
 
@@ -318,10 +376,13 @@ Only deploy from a laptop — the EC2 instance role can't touch CloudFront.
   1. Scrape downloadable index files (CSV/XLSX) to unlock the long tail
      of jfk-release-2017/2022/2023 documents (currently 50 each, should
      be thousands).
-  2. Flip `APP_ENV` to `prod` and run `php bin/console cache:clear --env=prod`
-     once routes and scraper are stable.
-  3. Add a nightly `HEAD` health check on stored PDF URLs and flag stale
+  2. Add a nightly `HEAD` health check on stored PDF URLs and flag stale
      rows instead of deleting them.
+  3. Land additional sources per the §5.4 roadmap (NARA Catalog API →
+     CIA CREST → NSArchive → State → FBI Vault).
+  4. Enrich `oig-doj` documents with `pdf_url` via a second-pass fetch
+     of each detail page (currently `source_url` is the detail page
+     and `pdf_url` is null).
 
 ---
 
@@ -332,10 +393,12 @@ Only deploy from a laptop — the EC2 instance role can't touch CloudFront.
    auto-grant that user to this DB. If the API dies with
    `SQLSTATE[HY000] [1044] Access denied for user 'seo_sites'@'%' to
    database 'blackvaultdocs'`, re-run the GRANT in §3.3.
-2. **`APP_ENV=dev` in production**: the `.env` ships with `APP_ENV=dev`,
-   which renders full Symfony HTML error pages (many KB of HTML) on 500s.
-   Do not run a load test against the API until this is flipped to `prod`
-   and the cache is warmed.
+2. **Cache warming after `APP_ENV` or config changes**: flipping
+   `APP_ENV`, editing `config/`, or adding new attribute-routed
+   controllers requires `php bin/console cache:clear --env=prod` on the
+   server. Symfony's prod cache is permissive on stale routes and
+   strict on stale DI — missing service errors usually mean a cache
+   clear is overdue.
 3. **`AGENTS.md` inside `frontend/`** references peptidedive.com — stale
    copy from the template, ignore until someone rewrites it.
 4. **CloudFront invalidation is expensive.** The first 1000/month are
