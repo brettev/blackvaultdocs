@@ -48,6 +48,7 @@ final class ScrapeCommand extends Command
             ->addOption('max-topics', null, InputOption::VALUE_OPTIONAL, 'Limit topic pages (0 = all)', 0)
             ->addOption('max-docs', null, InputOption::VALUE_OPTIONAL, 'Limit docs per topic (0 = all)', 0)
             ->addOption('delay-ms', null, InputOption::VALUE_OPTIONAL, 'Delay between HTTP requests (ms)', 2000)
+            ->addOption('topic', 't', InputOption::VALUE_OPTIONAL, 'Restrict to a single topic slug (scraper-dependent)')
             ->addOption('output', 'o', InputOption::VALUE_OPTIONAL, 'Write records to this JSONL file instead of the DB')
             ->addOption('list', null, InputOption::VALUE_NONE, 'List available sources and exit');
     }
@@ -87,10 +88,12 @@ final class ScrapeCommand extends Command
         $isDb = $sink instanceof DbSink;
         $logId = $isDb ? $this->log->start($sourceKey, 'scrape') : null;
 
+        $onlyTopic = $input->getOption('topic');
         $options = [
             'max_topics' => $maxTopics,
             'max_docs_per_topic' => $maxDocs,
             'delay_ms' => $delayMs,
+            'topic' => $onlyTopic !== null && $onlyTopic !== '' ? (string) $onlyTopic : null,
             'progress' => $logId !== null
                 ? function (string $topicSlug, int $added, int $seen) use ($logId): void {
                     $this->log->tick($logId, $added, $seen);

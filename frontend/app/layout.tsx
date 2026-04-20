@@ -17,12 +17,14 @@ export const metadata: Metadata = {
     title: 'BlackVaultDocs — Declassified US Government Document Archive',
     description:
       'Browse JFK, RFK, MLK and other FOIA-released collections indexed from the National Archives.',
+    images: [{ url: '/og/home.png', width: 1200, height: 630 }],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'BlackVaultDocs',
     description:
       'Declassified US government documents, indexed from the National Archives.',
+    images: ['/og/home.png'],
   },
 };
 

@@ -25,6 +25,16 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       agency.description ??
       `Declassified documents from ${agency.name} indexed by BlackVaultDocs.`,
     alternates: { canonical: `/agencies/${agency.slug}/` },
+    openGraph: {
+      title: agency.name,
+      description: agency.description ?? undefined,
+      images: [{ url: `/og/agencies/${agency.slug}.png`, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: agency.name,
+      images: [`/og/agencies/${agency.slug}.png`],
+    },
   };
 }
 

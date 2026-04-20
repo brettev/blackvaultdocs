@@ -3,10 +3,75 @@
  * executed at build-time (static export) with a generous timeout. We never
  * throw — callers decide how to handle nulls so that a flaky backend can't
  * break a whole page tree.
+ *
+ * The backend is a small Symfony API sitting behind a shared-hosting Apache
+ * (MPM prefork, MaxRequestWorkers=150) that also serves ~30 other sites.
+ * If we fan out thousands of parallel fetches during `next build`, we can
+ * saturate the worker pool and wedge every tenant. Every request here must
+ * therefore have a bounded timeout, and concurrency must be bounded at the
+ * call-site (see `pMap` below).
  */
 
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ?? 'https://api.blackvaultdocs.com';
+
+const DEFAULT_TIMEOUT_MS = Number(process.env.BVD_API_TIMEOUT_MS ?? 20_000);
+const DEFAULT_RETRIES = Number(process.env.BVD_API_RETRIES ?? 2);
+const GLOBAL_CONCURRENCY = Number(process.env.BVD_API_CONCURRENCY ?? 8);
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * A crude global semaphore that caps in-flight HTTP requests to the API.
+ * Next.js `output: export` can spin up dozens of parallel page renders, each
+ * of which calls this client. Without a cap, a 15k-document build opens
+ * hundreds of concurrent TCP connections and trivially wedges the shared
+ * Apache pool that also serves ~30 other tenants.
+ */
+let inFlight = 0;
+const waiters: Array<() => void> = [];
+
+function acquireSlot(): Promise<void> {
+  if (inFlight < GLOBAL_CONCURRENCY) {
+    inFlight += 1;
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => waiters.push(resolve));
+}
+
+function releaseSlot(): void {
+  const next = waiters.shift();
+  if (next) {
+    next();
+    return;
+  }
+  inFlight = Math.max(0, inFlight - 1);
+}
+
+/**
+ * Bounded parallel map. Keeps at most `concurrency` promises in flight at
+ * once so that static export cannot accidentally open hundreds of TCP
+ * connections to the API.
+ */
+export async function pMap<T, R>(
+  items: readonly T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const n = items.length;
+  const results = new Array<R>(n);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(Math.max(concurrency, 1), n) }, async () => {
+    while (cursor < n) {
+      const i = cursor++;
+      results[i] = await mapper(items[i], i);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
 
 export type DocumentRow = {
   slug: string;
@@ -77,17 +142,42 @@ type ListEnvelope<T> = {
 };
 
 async function getJson<T>(path: string, init?: RequestInit): Promise<T | null> {
+  const url = `${API_BASE}${path}`;
+  await acquireSlot();
   try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      ...init,
-      headers: { accept: 'application/json', ...(init?.headers ?? {}) },
-      // Always revalidate at build time so the static export is fresh.
-      next: { revalidate: 0 },
-    } as RequestInit);
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch {
+    for (let attempt = 0; attempt <= DEFAULT_RETRIES; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+      try {
+        const res = await fetch(url, {
+          ...init,
+          headers: { accept: 'application/json', ...(init?.headers ?? {}) },
+          signal: controller.signal,
+          next: { revalidate: 0 },
+        } as RequestInit);
+        if (res.ok) {
+          return (await res.json()) as T;
+        }
+        if (res.status >= 500 && attempt < DEFAULT_RETRIES) {
+          await sleep(500 * 2 ** attempt);
+          continue;
+        }
+        return null;
+      } catch (err) {
+        if (attempt < DEFAULT_RETRIES) {
+          await sleep(500 * 2 ** attempt);
+          continue;
+        }
+        const reason = err instanceof Error ? err.message : String(err);
+        console.warn(`[api] ${path} failed after ${DEFAULT_RETRIES + 1} attempts: ${reason}`);
+        return null;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
     return null;
+  } finally {
+    releaseSlot();
   }
 }
 

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { listTopics, getTopic } from '../../lib/api';
+import { listTopics, getTopic, pMap } from '../../lib/api';
 import { breadcrumbJsonLd, jsonLdString, SITE_URL } from '../../lib/jsonLd';
 
 export const dynamic = 'force-static';
@@ -63,6 +63,12 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       title: `${year} declassification releases`,
       description: `${totalDocs.toLocaleString()} declassified documents across ${list.length} collections, published in ${year}.`,
       type: 'article',
+      images: [{ url: `/og/years/${year}.png`, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${year} declassification releases`,
+      images: [`/og/years/${year}.png`],
     },
   };
 }
@@ -77,12 +83,10 @@ export default async function YearPage({ params }: { params: Promise<Params> }) 
 
   // Pull a few sample docs per collection so this page has real content
   // beyond the card grid.
-  const samples = await Promise.all(
-    list.map(async (t) => {
-      const res = await getTopic(t.slug, { page: 1, limit: 6 });
-      return { slug: t.slug, name: t.name, docs: res?.documents ?? [] };
-    }),
-  );
+  const samples = await pMap(list, 4, async (t) => {
+    const res = await getTopic(t.slug, { page: 1, limit: 6 });
+    return { slug: t.slug, name: t.name, docs: res?.documents ?? [] };
+  });
 
   const breadcrumb = breadcrumbJsonLd([
     { name: 'Home', path: '/' },

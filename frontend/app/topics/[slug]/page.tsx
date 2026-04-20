@@ -3,6 +3,11 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTopic, listTopics } from '../../lib/api';
 import { breadcrumbJsonLd, jsonLdString, SITE_URL } from '../../lib/jsonLd';
+import {
+  buildGenericTopicFaqs,
+  faqPageJsonLd,
+  getTopicFaqs,
+} from '../../lib/topicFaqs';
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
@@ -34,6 +39,13 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       title: topic.name,
       description: topic.description ?? undefined,
       type: 'article',
+      images: [{ url: `/og/topics/${topic.slug}.png`, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: topic.name,
+      description: topic.description ?? undefined,
+      images: [`/og/topics/${topic.slug}.png`],
     },
   };
 }
@@ -77,6 +89,20 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
     { name: 'Collections', path: '/topics/' },
     { name: topic.name, path: `/topics/${topic.slug}/` },
   ]);
+
+  const faqs =
+    getTopicFaqs(topic.slug) ??
+    buildGenericTopicFaqs({
+      topicName: topic.name,
+      docCount: topic.doc_count,
+      agencyLabel: topic.agency_slug === 'nara'
+        ? 'the National Archives'
+        : topic.agency_slug === 'doj-oig'
+          ? 'the DOJ Office of the Inspector General'
+          : 'the originating agency',
+      releaseYear,
+    });
+  const faqJsonLd = faqPageJsonLd(faqs);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
@@ -176,6 +202,28 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
         </p>
       </section>
 
+      <section className="mt-12">
+        <h2 className="text-lg font-semibold text-gray-200">
+          Frequently asked questions
+        </h2>
+        <div className="mt-4 divide-y divide-gray-800 rounded-md border border-gray-800 bg-gray-900/40">
+          {faqs.map((f, i) => (
+            <details
+              key={i}
+              className="group px-5 py-4 open:bg-gray-900/70"
+              {...(i === 0 ? { open: true } : {})}
+            >
+              <summary className="cursor-pointer list-none text-sm font-semibold text-gray-200 group-open:text-white">
+                {f.question}
+              </summary>
+              <p className="mt-2 text-sm leading-relaxed text-gray-300">
+                {f.answer}
+              </p>
+            </details>
+          ))}
+        </div>
+      </section>
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
@@ -183,6 +231,10 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(faqJsonLd) }}
       />
     </main>
   );

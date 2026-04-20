@@ -26,8 +26,14 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  *
  * Topic grouping is by DOJ component being overseen, e.g. all FBI-related
  * reports cluster under `doj-oig-fbi`. Component labels are lowercased and
- * slugified; unknown / "Multiple Components" reports fall into
- * `doj-oig-other`.
+ * slugified; comma-separated multi-component listings collapse into
+ * `doj-oig-multiple-components`.
+ *
+ * Known limitation: reports published before ~2008 often lack a Component(s)
+ * span entirely in the listing markup, so they default to `doj-oig-other`
+ * (~1 500 rows at the time of first ingestion). Fixing that requires a
+ * per-detail-page enrichment pass — currently tracked alongside the PDF-URL
+ * enrichment TODO since both need per-report HTTP fetches.
  */
 final class OigDojScraper implements ScraperInterface
 {

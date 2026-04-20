@@ -220,8 +220,19 @@ Currently registered (`php bin/console app:bvd:scrape --list`):
 
 | Key | Class | Coverage |
 |---|---|---|
-| `archives-gov` | `ArchivesGovScraper` | ~12 600 docs · JFK/RFK/MLK NARA release pages |
+| `archives-gov` | `ArchivesGovScraper` | ~12 600 docs · JFK/RFK/MLK NARA release landing pages (inline `<a href="*.pdf">` links only) |
+| `archives-gov-xlsx` | `ArchivesGovXlsxScraper` | ~70 000 docs across JFK 2017/2022/2023 — parses the official NARA release manifest (XLSX) to unlock the long tail the HTML scraper misses |
 | `oig-doj` | `OigDojScraper` | ~3 100 DOJ OIG audits/investigations, topic = DOJ component (FBI, DEA, ATF, BOP, USMS, …) |
+
+The HTML and XLSX `archives-gov*` scrapers write to the same `topics`
+(e.g. `jfk-release-2023`) but emit different `source` values, so both can
+run idempotently — the XLSX manifest is always a superset of what the
+landing-page scraper sees. Slugs are identical
+(`<topic>-<NARA-record-id>`), so `INSERT IGNORE` de-dupes cleanly.
+
+`ArchivesGovXlsxScraper` streams the workbook in 2000-row chunks using a
+PhpSpreadsheet `IReadFilter`; the 2017 manifest alone is 54 636 rows and
+loading it in one pass blows past `memory_limit`.
 
 CLI:
 
@@ -307,8 +318,34 @@ Queued in priority order:
 - **SEO**:
   - Every route exports `metadata` or `generateMetadata` with a canonical
     URL in `alternates.canonical`.
-  - The `prebuild` script writes `public/sitemap.xml` and `public/robots.txt`
-    from the live API — set `MAX_SITEMAP_DOCS` env var to trim if needed.
+  - The `prebuild` script runs in two stages:
+    1. `scripts/generate-og-images.mjs` — satori + @resvg/resvg-js
+       pregenerate 1200×630 PNG OG cards into `public/og/{home,topics,
+       agencies,years,figures}.png`. Referenced from page metadata so
+       Twitter/Slack/LinkedIn link previews are real images, not the
+       text-only fallback.
+    2. `scripts/generate-sitemap.mjs` — emits a `sitemap-index.xml`
+       (hard-required before the corpus exceeds Google's 50k-URL limit)
+       plus per-collection children under `public/sitemaps/`:
+       `sitemap-core.xml`, `sitemap-topics.xml`, `sitemap-figures.xml`,
+       `sitemap-nara.xml`, and `sitemap-docs-<source>-<N>.xml` chunked
+       at 10 000 URLs per file. Each child sitemap has its own
+       `<lastmod>` so Googlebot only refetches what changed.
+  - **FAQ schema** is emitted on every `/topics/<slug>/` page via
+    `app/lib/topicFaqs.ts` — curated Q&A per collection with a generic
+    fallback, rendered both as visible `<details>` elements and inline
+    `FAQPage` JSON-LD. Eligible for SERP FAQ rich results.
+  - **Figures landing pages** at `/figures/<slug>/` (list in
+    `app/lib/figures.ts`) auto-filter the corpus by alias match on
+    document titles. High-intent name queries (Oswald, Ruby, Sirhan,
+    Hoover, Angleton, Phillips, Joannides, …) rank here instead of
+    fighting Wikipedia for the main bio SERP.
+  - **NARA ID short links** at `/nara/<AAA-BBBBB-CCCCC>/` are prebuilt
+    for every record where a NARA Record Identification Number appears
+    in the title or slug. They emit a `<link rel="canonical">` to the
+    canonical `/documents/<slug>/` URL and a `<meta http-equiv="refresh">`
+    so researchers who type the raw ID into the browser land on the
+    right page (and Google consolidates ranking signals).
   - OpenGraph and Twitter metadata live in `app/layout.tsx` as defaults,
     overridden per page where it matters.
 - **Styling language**: dark, FOIA-file tone — `bg-gray-950`, red-600
@@ -373,9 +410,9 @@ Only deploy from a laptop — the EC2 instance role can't touch CloudFront.
   `ArchivesGovScraper` now uses canonical URLs.
 
 - **Operational next steps** (tracked as issues, not blockers):
-  1. Scrape downloadable index files (CSV/XLSX) to unlock the long tail
-     of jfk-release-2017/2022/2023 documents (currently 50 each, should
-     be thousands).
+  1. ✅ DONE 2026-04-20: `archives-gov-xlsx` scraper added; run
+     `php bin/console app:bvd:scrape --source=archives-gov-xlsx` to
+     ingest the ~70k long tail of JFK 2017/2022/2023.
   2. Add a nightly `HEAD` health check on stored PDF URLs and flag stale
      rows instead of deleting them.
   3. Land additional sources per the §5.4 roadmap (NARA Catalog API →
@@ -406,13 +443,41 @@ Only deploy from a laptop — the EC2 instance role can't touch CloudFront.
    path-specific invalidations (`'/*' is fine here because we deploy
    rarely; revisit if we move to continuous deploys).
 5. **Static export caps.** `MAX_STATIC_DOCS` (default 20 000) bounds how
-   many `/documents/[slug]/` pages get prebuilt. Current corpus is ~12.6k,
+   many `/documents/[slug]/` pages get prebuilt. Current corpus is ~15.6k,
    so all docs fit. If the corpus grows past 20k, either bump the cap or
    switch that route to incremental static regeneration (which would
    force moving off pure static export — non-trivial).
 6. **PDFs are hot-linked.** archives.gov can deprecate URLs. When we
    detect 404s we should flag the row, not delete it — a future scrape
    job should do a cheap HEAD check and update a `last_checked_at` column.
+7. **Shared Apache on `sshnewbe` — watch for pool saturation.** The server
+   hosts ~30 tenants on MPM prefork. Historical tuning was
+   `MaxRequestWorkers=150`, which is easy to saturate during a large
+   `next build` (the 15k-document build issues 30k+ API calls) or a
+   runaway ingest. On 2026-04-20 an orphaned `fetch-data.mjs` held ~30
+   concurrent TLS connections and wedged every tenant. The pool has
+   since been retuned to:
+   ```
+   StartServers 10  MinSpareServers 10  MaxSpareServers 25
+   ServerLimit 400  MaxRequestWorkers 300  MaxConnectionsPerChild 5000
+   ```
+   `mod_wsgi` was also `a2dismod`'d (nothing uses it), cutting per-worker
+   RSS from ~33 MB to ~23 MB. To avoid a repeat the frontend API client
+   (`frontend/app/lib/api.ts`) now enforces a per-process global
+   concurrency cap (`BVD_API_CONCURRENCY`, default 8), a 20 s abort
+   timeout, and 2 exponential-backoff retries. `pMap` is exported for
+   any build-time fan-out that would otherwise use unbounded
+   `Promise.all`. If the API ever times out during a build again, first
+   check `pgrep -cf apache2` and `ss -tn state established ( sport = :443 )`
+   on the server before blaming PHP.
+8. **fail2ban auto-bans your own server.** `/etc/iptables/*` contains a
+   live `apache-vuln-scanner` jail that has banned the box's own public
+   IP (52.73.80.160) among others. This means *the server cannot hit
+   `api.blackvaultdocs.com` from itself* — the DNS resolves to its own
+   public IP and iptables drops it. When testing the API from the EC2
+   host, always use `--resolve api.blackvaultdocs.com:443:127.0.0.1` or
+   bind directly to 127.0.0.1. External callers (CloudFront, browsers,
+   the build machine) are unaffected.
 
 ---
 
