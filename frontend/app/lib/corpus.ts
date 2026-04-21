@@ -9,6 +9,10 @@
  * issues one sequence of paginated requests; subsequent calls reuse the
  * resolved promise for the lifetime of the build process.
  */
+import { readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { listDocuments, type DocumentRow } from './api';
 
 export type CorpusRow = Pick<
@@ -16,14 +20,31 @@ export type CorpusRow = Pick<
   'slug' | 'title' | 'topic_slug' | 'agency_slug' | 'source'
 >;
 
-const MAX_CORPUS = Number(process.env.MAX_CORPUS_DOCS ?? 30000);
+const MAX_CORPUS = Number(process.env.MAX_CORPUS_DOCS ?? 60000);
 const PAGE_SIZE = 500;
+
+// Resolve the on-disk dump produced by `scripts/dump-corpus.mjs`.
+// Each `next build` worker would otherwise re-paginate the API; reading
+// the dump turns a 250-request-per-worker walk into one disk read.
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CACHE_FILE = resolve(__dirname, '..', '..', '.corpus-cache.json');
 
 let cache: Promise<CorpusRow[]> | null = null;
 
 export function loadCorpus(): Promise<CorpusRow[]> {
   if (cache) return cache;
   cache = (async () => {
+    if (existsSync(CACHE_FILE)) {
+      try {
+        const raw = await readFile(CACHE_FILE, 'utf8');
+        const parsed = JSON.parse(raw) as CorpusRow[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.slice(0, MAX_CORPUS);
+        }
+      } catch {
+        // fall through to API
+      }
+    }
     const out: CorpusRow[] = [];
     let page = 1;
     while (out.length < MAX_CORPUS) {

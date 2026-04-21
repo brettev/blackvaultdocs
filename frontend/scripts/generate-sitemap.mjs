@@ -21,18 +21,20 @@
  * The script fails open (writes a minimal index + core sitemap) if the API
  * is unreachable so the build can still complete.
  */
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, mkdir, readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = resolve(__dirname, '..', 'public');
 const SITEMAPS_DIR = resolve(PUBLIC_DIR, 'sitemaps');
+const CORPUS_CACHE = resolve(__dirname, '..', '.corpus-cache.json');
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://blackvaultdocs.com').replace(/\/$/, '');
 const API = (process.env.NEXT_PUBLIC_API_BASE ?? 'https://api.blackvaultdocs.com').replace(/\/$/, '');
 
-const MAX_DOCUMENTS = Number(process.env.MAX_SITEMAP_DOCS ?? 40000);
+const MAX_DOCUMENTS = Number(process.env.MAX_SITEMAP_DOCS ?? 60000);
 const DOCS_PER_FILE = 10_000;
 const PAGE_SIZE = 500;
 
@@ -103,6 +105,24 @@ async function listAgencies() {
  * pass without re-paginating the API.
  */
 async function listAllDocuments(max = MAX_DOCUMENTS) {
+  // Hot path: hydrate from the prebuild corpus dump.
+  if (existsSync(CORPUS_CACHE)) {
+    try {
+      const raw = await readFile(CORPUS_CACHE, 'utf8');
+      const rows = JSON.parse(raw);
+      if (Array.isArray(rows) && rows.length > 0) {
+        return rows.slice(0, max).map((r) => ({
+          slug: r.slug,
+          source: r.source ?? 'unknown',
+          title: r.title ?? '',
+          scraped_at: r.scraped_at ?? null,
+        }));
+      }
+    } catch {
+      // fall through to API
+    }
+  }
+
   const out = [];
   let page = 1;
   while (out.length < max) {

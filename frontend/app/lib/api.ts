@@ -273,6 +273,21 @@ export async function listAllDocumentSlugs(params: { topic?: string; max?: numbe
 export type SearchIndexEntry = { slug: string; title: string; topic: string | null };
 
 export async function buildSearchIndex(max = 30000, pageSize = 500): Promise<SearchIndexEntry[]> {
+  // Hydrate from the prebuild corpus dump if it's there — otherwise a
+  // single-worker /search/ page build has to walk the API from page 1
+  // and trips Next's 60-second static-page timeout once the corpus
+  // crosses ~20k rows.
+  try {
+    const { loadCorpus } = await import('./corpus');
+    const rows = await loadCorpus();
+    if (rows.length > 0) {
+      return rows
+        .slice(0, max)
+        .map((r) => ({ slug: r.slug, title: r.title, topic: r.topic_slug }));
+    }
+  } catch {
+    // fall through to the live API walk
+  }
   const out: SearchIndexEntry[] = [];
   let page = 1;
   while (out.length < max) {

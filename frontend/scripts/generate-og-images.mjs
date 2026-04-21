@@ -33,8 +33,11 @@ const API = (process.env.NEXT_PUBLIC_API_BASE ?? 'https://api.blackvaultdocs.com
 
 const FONT_CACHE_DIR =
   process.env.OG_FONT_CACHE_DIR ?? resolve(__dirname, '..', 'node_modules', '.cache', 'og-font');
-const FONT_URL = 'https://github.com/rsms/inter/raw/v4.0/docs/font-files/InterDisplay-Bold.otf';
-const FONT_CACHE_PATH = resolve(FONT_CACHE_DIR, 'InterDisplay-Bold.otf');
+// Google Fonts hosts Inter directly as a TTF, which satori/resvg both handle
+// fine. The v20 URL below is the stable gstatic mirror for Inter weight 700.
+const FONT_URL =
+  'https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYMZg.ttf';
+const FONT_CACHE_PATH = resolve(FONT_CACHE_DIR, 'Inter-Bold.ttf');
 
 // Palette kept in sync with the dark landing-page theme: near-black
 // background, white headline, red accent.

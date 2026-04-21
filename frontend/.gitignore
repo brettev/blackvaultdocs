@@ -35,7 +35,12 @@ yarn-error.log*
 
 # generated at build time by scripts/generate-sitemap.mjs
 /public/sitemap.xml
+/public/sitemaps/
 /public/robots.txt
+/public/og/
+
+# generated at build time by scripts/dump-corpus.mjs
+.corpus-cache.json
 
 # vercel
 .vercel
