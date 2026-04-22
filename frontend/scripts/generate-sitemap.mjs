@@ -52,10 +52,6 @@ const FIXED_ROUTES = [
 
 const TOPIC_DOCS_PER_PAGE = 100;
 
-// Keep this list aligned with FIGURES in frontend/app/lib/figures.ts. The
-// cost of drift is a handful of 404s in the sitemap, which Googlebot will
-// eventually drop — but we'd rather not regress here. Adding a figure
-// requires bumping both files.
 const FIGURE_SLUGS = [
   'lee-harvey-oswald',
   'jack-ruby',
@@ -97,15 +93,7 @@ async function listAgencies() {
   return res?.data ?? [];
 }
 
-/**
- * Walk /api/public/documents in full. Returns an array of
- *   { slug, source, title, scraped_at }
- * capped at MAX_DOCUMENTS. We need `source` so docs can be partitioned
- * per-sitemap, and `title` so we can derive NARA short-links in the same
- * pass without re-paginating the API.
- */
 async function listAllDocuments(max = MAX_DOCUMENTS) {
-  // Hot path: hydrate from the prebuild corpus dump.
   if (existsSync(CORPUS_CACHE)) {
     try {
       const raw = await readFile(CORPUS_CACHE, 'utf8');
@@ -119,7 +107,6 @@ async function listAllDocuments(max = MAX_DOCUMENTS) {
         }));
       }
     } catch {
-      // fall through to API
     }
   }
 
@@ -267,6 +254,9 @@ async function main() {
       indexEntries.push({ path: `/sitemaps/${fname}`, lastmod });
     }
   }
+
+  /* ---------- inject dynamic blog ---------- */
+  indexEntries.push({ path: '/sitemap-blog.xml', lastmod: today });
 
   /* ---------- write the index ---------- */
   await writeFile(resolve(PUBLIC_DIR, 'sitemap.xml'), indexDoc(indexEntries), 'utf8');
