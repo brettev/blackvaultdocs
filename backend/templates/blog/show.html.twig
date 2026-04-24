@@ -1,0 +1,28 @@
+{% extends "blog/base_seo.html.twig" %}
+
+{% block title %}{{ post.title }} | BlackVault Docs{% endblock %}
+{% block description %}{{ post.metaDescription ?? post.title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="canonical" href="https://blackvaultdocs.com/blog/{{ post.slug }}">
+    <meta property="og:url" content="https://blackvaultdocs.com/blog/{{ post.slug }}">
+{% endblock %}
+
+{% block body %}
+<article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <header class="mb-12 border-b border-white/10 pb-8">
+        <h1 class="text-4xl sm:text-5xl font-bold tracking-tighter text-white mb-6 leading-tight">
+            {{ post.title }}
+        </h1>
+        <div class="flex items-center gap-4 text-sm text-white/50 uppercase tracking-widest font-mono">
+            <time datetime="{{ post.publishedAt|date('Y-m-d') }}">{{ post.publishedAt|date("M d, Y") }}</time>
+            <span>//</span>
+            <span>Declassified Analysis</span>
+        </div>
+    </header>
+    
+    <div class="prose prose-invert prose-lg mx-auto prose-p:leading-relaxed prose-p:text-white/80 prose-a:text-white prose-a:border-b prose-a:border-white/30 hover:prose-a:border-white prose-strong:text-white prose-headings:text-white prose-headings:font-bold prose-headings:tracking-tight font-serif">
+        {{ post.contentHtml|raw }}
+    </div>
+</article>
+{% endblock %}

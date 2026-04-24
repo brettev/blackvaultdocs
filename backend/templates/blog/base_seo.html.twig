@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}BlackVault Docs{% endblock %}</title>
+    <meta name="description" content="{% block description %}Declassified US government documents and FOIA releases.{% endblock %}">
+    <meta property="og:title" content="{{ block('title') }}">
+    <meta property="og:description" content="{{ block('description') }}">
+    <meta property="og:site_name" content="BlackVault Docs">
+    <meta property="og:type" content="article">
+    {% block extra_head %}{% endblock %}
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {}
+        }
+      }
+    </script>
+    <style>
+      body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; background-color: #000; color: #f3f4f6; }
+    </style>
+  </head>
+  <body class="flex flex-col min-h-screen font-mono">
+    <header class="border-b border-white/10 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <a href="/" class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-white flex items-center justify-center">
+              <span class="text-black font-black text-xl tracking-tighter">BV</span>
+            </div>
+            <span class="font-bold text-xl tracking-tight text-white">BlackVault<span class="text-white/60 font-normal">Docs</span></span>
+          </a>
+
+          <div class="hidden md:flex items-center gap-6">
+            <a href="/topics" class="text-sm font-medium text-white/70 hover:text-white transition-colors uppercase tracking-wider">Topics</a>
+            <a href="/agencies" class="text-sm font-medium text-white/70 hover:text-white transition-colors uppercase tracking-wider">Agencies</a>
+            <a href="/years" class="text-sm font-medium text-white/70 hover:text-white transition-colors uppercase tracking-wider">Timeline</a>
+            <a href="/documents" class="text-sm font-medium text-white/70 hover:text-white transition-colors uppercase tracking-wider">Archive</a>
+            <a href="/search" class="text-sm font-medium text-white/70 hover:text-white transition-colors uppercase tracking-wider">Search</a>
+            <a href="/blog" class="text-sm font-medium text-white hover:text-white transition-colors uppercase tracking-wider border-b border-white">Blog</a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main-content" class="flex-1">
+      {% block body %}{% endblock %}
+    </main>
+
+    <footer class="border-t border-white/10 mt-24 py-12 bg-black">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <p class="text-white/40 text-sm">
+          Declassified documents processed via open intelligence disclosures.<br/>
+          Not affiliated with the U.S. Government.
+        </p>
+        <p class="text-white/30 text-xs mt-4">© {{ "now"|date("Y") }} BlackVault Docs. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>
