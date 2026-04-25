@@ -20,6 +20,7 @@ export function SiteHeader() {
           <Link href="/search/" className="hover:text-gray-100">Search</Link>
           <Link href="/stats/" className="hover:text-gray-100 hidden md:inline">Stats</Link>
           <Link href="/about/" className="hover:text-gray-100 hidden md:inline">About</Link>
+          <Link href="/contact/" className="hover:text-gray-100">Contact</Link>
         </nav>
       </div>
     </header>
@@ -55,6 +56,7 @@ export function SiteFooter() {
           <h5 className="text-xs font-semibold uppercase tracking-widest text-gray-300">About</h5>
           <ul className="mt-3 space-y-1">
             <li><Link href="/about/" className="hover:text-gray-100">About the archive</Link></li>
+            <li><Link href="/contact/" className="hover:text-gray-100">Contact Us</Link></li>
             <li>
               <a href="https://www.archives.gov/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-100">
                 National Archives (source)

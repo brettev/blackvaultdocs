@@ -27,4 +27,10 @@ services:
         App\Ingestion\ScraperInterface:
             tags: ['App\Ingestion\ScraperInterface']
 
+    App\Service\MarketingAdminMailer:
+        arguments:
+            $adminNotifyEmail: 'brett@brettevanson.com'
+            $fromAddress: '%env(MAILER_FROM)%'
+            $siteDisplayName: 'BlackVaultDocs'
+
 
