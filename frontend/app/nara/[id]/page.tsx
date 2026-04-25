@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { loadNaraIdMap } from '../../lib/corpus';
 import { breadcrumbJsonLd, jsonLdString, SITE_URL } from '../../lib/jsonLd';
+import { STATIC_EXPORT_NARA_ID } from '../../lib/staticExportPlaceholder';
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
@@ -26,11 +27,14 @@ type Params = { id: string };
 
 export async function generateStaticParams(): Promise<Params[]> {
   const map = await loadNaraIdMap();
-  return Object.keys(map).map((id) => ({ id }));
+  const ids = Object.keys(map);
+  if (ids.length === 0) return [{ id: STATIC_EXPORT_NARA_ID }];
+  return ids.map((id) => ({ id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { id } = await params;
+  if (id === STATIC_EXPORT_NARA_ID) return { title: 'Not found' };
   const map = await loadNaraIdMap();
   const hit = map[id];
   if (!hit) return { title: 'NARA record not found' };
@@ -47,6 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function NaraIdRedirectPage({ params }: { params: Promise<Params> }) {
   const { id } = await params;
+  if (id === STATIC_EXPORT_NARA_ID) notFound();
   const map = await loadNaraIdMap();
   const hit = map[id];
   if (!hit) notFound();

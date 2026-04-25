@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAgency, listAgencies } from '../../lib/api';
 import { breadcrumbJsonLd, jsonLdString } from '../../lib/jsonLd';
+import { STATIC_EXPORT_AGENCY_SLUG } from '../../lib/staticExportPlaceholder';
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
@@ -11,11 +12,13 @@ type Params = { slug: string };
 
 export async function generateStaticParams(): Promise<Params[]> {
   const agencies = await listAgencies();
+  if (agencies.length === 0) return [{ slug: STATIC_EXPORT_AGENCY_SLUG }];
   return agencies.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === STATIC_EXPORT_AGENCY_SLUG) return { title: 'Not found' };
   const res = await getAgency(slug);
   if (!res) return { title: 'Agency not found' };
   const { agency } = res;
@@ -40,6 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function AgencyDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
+  if (slug === STATIC_EXPORT_AGENCY_SLUG) notFound();
   const res = await getAgency(slug);
   if (!res) notFound();
   const { agency, topics } = res;

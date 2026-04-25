@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getDocument, listAllDocumentSlugs } from '../../lib/api';
 import { breadcrumbJsonLd, jsonLdString } from '../../lib/jsonLd';
+import { STATIC_EXPORT_DOC_SLUG } from '../../lib/staticExportPlaceholder';
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
@@ -16,11 +17,13 @@ type Params = { slug: string };
 
 export async function generateStaticParams(): Promise<Params[]> {
   const slugs = await listAllDocumentSlugs({ max: MAX_STATIC_DOCS, pageSize: 500 });
+  if (slugs.length === 0) return [{ slug: STATIC_EXPORT_DOC_SLUG }];
   return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === STATIC_EXPORT_DOC_SLUG) return { title: 'Not found' };
   const res = await getDocument(slug);
   if (!res) return { title: 'Document not found' };
   const { document: doc, topic, agency } = res;
@@ -48,6 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function DocumentDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
+  if (slug === STATIC_EXPORT_DOC_SLUG) notFound();
   const res = await getDocument(slug);
   if (!res) notFound();
   const { document: doc, topic, agency } = res;
