@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from '@/app/components/GoogleAnalytics';
 import './globals.css';
 import type { Metadata } from 'next';
 import { SiteHeader, SiteFooter } from './components/SiteChrome';
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="bg-gray-950 text-gray-100 min-h-screen flex flex-col">
+        <GoogleAnalytics />
         <SiteHeader />
         <div className="flex-1">{children}</div>
         <SiteFooter />
