@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "node scripts/dump-corpus.mjs && node scripts/generate-og-images.mjs && node scripts/generate-sitemap.mjs",
-    "build": "next build --webpack",
+    "build": "next build",
     "start": "next start",
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
     "generate:og": "node scripts/generate-og-images.mjs"
