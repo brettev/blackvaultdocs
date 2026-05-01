@@ -105,8 +105,8 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
   const faqJsonLd = faqPageJsonLd(faqs);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <nav className="text-xs font-mono uppercase tracking-widest text-gray-500">
+    <div className="mx-auto max-w-6xl px-6 py-12">
+      <nav aria-label="Breadcrumb" className="text-xs font-mono uppercase tracking-widest text-gray-500">
         <Link href="/" className="hover:text-gray-300">home</Link> /{' '}
         <Link href="/topics/" className="hover:text-gray-300">collections</Link> /{' '}
         <span className="text-gray-300">{topic.slug}</span>
@@ -236,14 +236,14 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(faqJsonLd) }}
       />
-    </main>
+    </div>
   );
 }
 
 function TopicPagination({ slug, current, pages }: { slug: string; current: number; pages: number }) {
   const window = paginationWindow(current, pages);
   return (
-    <nav className="mt-6 flex items-center justify-between gap-4 text-xs font-mono uppercase tracking-widest text-gray-400">
+    <nav aria-label="Collection pagination" className="mt-6 flex items-center justify-between gap-4 text-xs font-mono uppercase tracking-widest text-gray-400">
       <div>
         {current > 1 ? (
           <Link

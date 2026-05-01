@@ -54,8 +54,8 @@ export default async function AgencyDetailPage({ params }: { params: Promise<Par
   ]);
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <nav className="text-xs font-mono uppercase tracking-widest text-gray-500">
+    <div className="mx-auto max-w-5xl px-6 py-12">
+      <nav aria-label="Breadcrumb" className="text-xs font-mono uppercase tracking-widest text-gray-500">
         <Link href="/" className="hover:text-gray-300">home</Link> /{' '}
         <Link href="/agencies/" className="hover:text-gray-300">agencies</Link> /{' '}
         <span className="text-gray-300">{agency.slug}</span>
@@ -101,6 +101,6 @@ export default async function AgencyDetailPage({ params }: { params: Promise<Par
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
       />
-    </main>
+    </div>
   );
 }

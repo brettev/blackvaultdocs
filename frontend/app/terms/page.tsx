@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
+    <div className="mx-auto max-w-3xl px-6 py-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -25,7 +25,7 @@ export default function TermsPage() {
         }}
       />
 
-      <nav className="text-xs font-mono uppercase tracking-widest text-gray-500">
+      <nav aria-label="Breadcrumb" className="text-xs font-mono uppercase tracking-widest text-gray-500">
         <Link href="/" className="hover:text-gray-300">
           home
         </Link>{' '}
@@ -130,6 +130,6 @@ export default function TermsPage() {
           </p>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

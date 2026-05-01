@@ -62,6 +62,7 @@ export function ContactForm() {
             type="text"
             autoComplete="given-name"
             required
+            aria-required="true"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-gray-100 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
@@ -76,6 +77,7 @@ export function ContactForm() {
             type="text"
             autoComplete="family-name"
             required
+            aria-required="true"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-gray-100 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
@@ -91,6 +93,8 @@ export function ContactForm() {
           type="email"
           autoComplete="email"
           required
+          aria-required="true"
+          aria-invalid={status === 'err' ? 'true' : 'false'}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-gray-100 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
@@ -116,6 +120,7 @@ export function ContactForm() {
         <textarea
           id="bvd-c-msg"
           required
+          aria-required="true"
           rows={5}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -125,10 +130,16 @@ export function ContactForm() {
       <p className="text-xs text-gray-500 leading-relaxed">
         By submitting, you agree we may email you about your message.
       </p>
-      {errMsg ? <p className="text-sm text-red-400">{errMsg}</p> : null}
-      {status === 'ok' ? (
-        <p className="text-sm text-emerald-400">Thanks — we received your message.</p>
-      ) : null}
+      <div role="status" aria-live="polite" className="min-h-[1.25rem]">
+        {errMsg ? (
+          <p className="text-sm text-red-400" role="alert">
+            {errMsg}
+          </p>
+        ) : null}
+        {status === 'ok' ? (
+          <p className="text-sm text-emerald-400">Thanks — we received your message.</p>
+        ) : null}
+      </div>
       <button
         type="submit"
         disabled={status === 'loading'}

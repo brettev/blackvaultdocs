@@ -40,14 +40,23 @@ export function SearchBox({ index }: { index: SearchIndexEntry[] }) {
   return (
     <div className="mt-8">
       <div className="flex flex-col gap-3 sm:flex-row">
+        <label htmlFor="bvd-search-q" className="sr-only">
+          Search the archive
+        </label>
         <input
+          id="bvd-search-q"
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search titles, slugs, NARA IDs…"
+          aria-label="Search titles, slugs, and NARA IDs"
           className="flex-1 rounded-md border border-gray-800 bg-gray-950 px-4 py-3 font-mono text-sm text-gray-100 placeholder:text-gray-600 focus:border-red-800 focus:outline-none"
         />
+        <label htmlFor="bvd-search-topic" className="sr-only">
+          Filter by collection
+        </label>
         <select
+          id="bvd-search-topic"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           className="rounded-md border border-gray-800 bg-gray-950 px-3 py-3 font-mono text-sm text-gray-200 focus:border-red-800 focus:outline-none"
@@ -62,7 +71,11 @@ export function SearchBox({ index }: { index: SearchIndexEntry[] }) {
       </div>
 
       {showing ? (
-        <p className="mt-3 text-xs font-mono uppercase tracking-widest text-gray-500">
+        <p
+          className="mt-3 text-xs font-mono uppercase tracking-widest text-gray-500"
+          role="status"
+          aria-live="polite"
+        >
           {results.length === MAX_RESULTS ? 'First ' : ''}
           {results.length.toLocaleString()} result{results.length === 1 ? '' : 's'}
           {topic ? ` in ${topic}` : ''}

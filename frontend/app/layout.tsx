@@ -34,8 +34,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="bg-gray-950 text-gray-100 min-h-screen flex flex-col">
         <GoogleAnalytics />
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:rounded focus:shadow-lg focus:text-red-700 focus:outline-none"
+        >
+          Skip to main content
+        </a>
         <SiteHeader />
-        <div className="flex-1">{children}</div>
+        <main id="main-content" className="flex-1">
+          {children}
+        </main>
         <SiteFooter />
         <script
           type="application/ld+json"

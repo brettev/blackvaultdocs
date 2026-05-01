@@ -38,8 +38,8 @@ export default async function FiguresIndexPage() {
   };
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <nav className="text-xs font-mono uppercase tracking-widest text-gray-500">
+    <div className="mx-auto max-w-6xl px-6 py-12">
+      <nav aria-label="Breadcrumb" className="text-xs font-mono uppercase tracking-widest text-gray-500">
         <Link href="/" className="hover:text-gray-300">home</Link> /{' '}
         <span className="text-gray-300">figures</span>
       </nav>
@@ -87,6 +87,6 @@ export default async function FiguresIndexPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
       />
-    </main>
+    </div>
   );
 }

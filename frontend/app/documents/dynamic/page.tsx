@@ -68,7 +68,7 @@ function NotADocument({ pathname }: { pathname: string }) {
     <>
       <title>Page not found · BlackVaultDocs</title>
       <meta name="robots" content="noindex,nofollow" />
-      <main className="mx-auto max-w-2xl px-6 py-20 text-center">
+      <div className="mx-auto max-w-2xl px-6 py-20 text-center">
         <h1 className="font-mono text-3xl font-extrabold tracking-tight text-white">
           Not found
         </h1>
@@ -83,7 +83,7 @@ function NotADocument({ pathname }: { pathname: string }) {
         >
           ← Back to BlackVaultDocs
         </Link>
-      </main>
+      </div>
     </>
   );
 }
@@ -93,7 +93,7 @@ function DocumentNotFound({ slug }: { slug: string }) {
     <>
       <title>Document not found · BlackVaultDocs</title>
       <meta name="robots" content="noindex,nofollow" />
-      <main className="mx-auto max-w-2xl px-6 py-20 text-center">
+      <div className="mx-auto max-w-2xl px-6 py-20 text-center">
         <h1 className="font-mono text-3xl font-extrabold tracking-tight text-white">
           Document not found
         </h1>
@@ -108,7 +108,7 @@ function DocumentNotFound({ slug }: { slug: string }) {
         >
           ← Browse the index
         </Link>
-      </main>
+      </div>
     </>
   );
 }
@@ -118,7 +118,7 @@ function ApiError({ slug }: { slug: string }) {
     <>
       <title>Temporarily unavailable · BlackVaultDocs</title>
       <meta name="robots" content="noindex,nofollow" />
-      <main className="mx-auto max-w-2xl px-6 py-20 text-center">
+      <div className="mx-auto max-w-2xl px-6 py-20 text-center">
         <h1 className="font-mono text-3xl font-extrabold tracking-tight text-white">
           Temporarily unavailable
         </h1>
@@ -134,21 +134,22 @@ function ApiError({ slug }: { slug: string }) {
         >
           Retry
         </button>
-      </main>
+      </div>
     </>
   );
 }
 
 function LoadingSkeleton() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12 animate-pulse">
+    <div className="mx-auto max-w-4xl px-6 py-12 animate-pulse" aria-busy="true" aria-live="polite">
+      <span className="sr-only">Loading document…</span>
       <div className="h-3 w-40 rounded bg-gray-900" />
       <div className="mt-6 h-10 w-3/4 rounded bg-gray-900" />
       <div className="mt-3 h-4 w-1/3 rounded bg-gray-900" />
       <div className="mt-10 h-32 rounded-md border border-gray-800 bg-gray-900/40" />
       <div className="mt-6 h-44 rounded-md border border-gray-800 bg-gray-900/40" />
       <div className="mt-6 h-72 rounded-md border border-gray-800 bg-gray-900/40" />
-    </main>
+    </div>
   );
 }
 

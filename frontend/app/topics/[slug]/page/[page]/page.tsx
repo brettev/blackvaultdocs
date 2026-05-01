@@ -64,8 +64,8 @@ export default async function TopicPageN({ params }: { params: Promise<Params> }
   ]);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <nav className="text-xs font-mono uppercase tracking-widest text-gray-500">
+    <div className="mx-auto max-w-6xl px-6 py-12">
+      <nav aria-label="Breadcrumb" className="text-xs font-mono uppercase tracking-widest text-gray-500">
         <Link href="/" className="hover:text-gray-300">home</Link> /{' '}
         <Link href="/topics/" className="hover:text-gray-300">collections</Link> /{' '}
         <Link href={`/topics/${topic.slug}/`} className="hover:text-gray-300">
@@ -116,7 +116,7 @@ export default async function TopicPageN({ params }: { params: Promise<Params> }
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
       />
-    </main>
+    </div>
   );
 }
 
@@ -124,7 +124,7 @@ function TopicPagination({ slug, current, pages }: { slug: string; current: numb
   const window = paginationWindow(current, pages);
   const hrefFor = (p: number) => (p === 1 ? `/topics/${slug}/` : `/topics/${slug}/page/${p}/`);
   return (
-    <nav className="mt-6 flex items-center justify-between gap-4 text-xs font-mono uppercase tracking-widest text-gray-400">
+    <nav aria-label="Collection pagination" className="mt-6 flex items-center justify-between gap-4 text-xs font-mono uppercase tracking-widest text-gray-400">
       <div>
         {current > 1 ? (
           <Link

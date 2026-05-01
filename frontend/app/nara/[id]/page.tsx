@@ -66,7 +66,7 @@ export default async function NaraIdRedirectPage({ params }: { params: Promise<P
   ]);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
+    <div className="mx-auto max-w-3xl px-6 py-16">
       {/* eslint-disable-next-line @next/next/no-head-element */}
       <meta httpEquiv="refresh" content={`0; url=${target}`} />
       <script
@@ -117,6 +117,6 @@ export default async function NaraIdRedirectPage({ params }: { params: Promise<P
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
       />
-    </main>
+    </div>
   );
 }

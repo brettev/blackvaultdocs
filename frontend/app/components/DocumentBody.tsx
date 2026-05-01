@@ -44,8 +44,8 @@ export default function DocumentBody({
   ]);
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <nav className="text-xs font-mono uppercase tracking-widest text-gray-500">
+    <div className="mx-auto max-w-4xl px-6 py-12">
+      <nav aria-label="Breadcrumb" className="text-xs font-mono uppercase tracking-widest text-gray-500">
         <Link href="/" className="hover:text-gray-300">home</Link>
         {' / '}
         <Link href="/documents/" className="hover:text-gray-300">documents</Link>
@@ -172,7 +172,7 @@ export default function DocumentBody({
       ) : null}
 
       {(prev || next) && topic ? (
-        <nav className="mt-12 flex flex-col gap-3 border-t border-gray-800 pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <nav aria-label={`Previous and next document in ${topic.slug}`} className="mt-12 flex flex-col gap-3 border-t border-gray-800 pt-6 sm:flex-row sm:items-center sm:justify-between">
           {prev ? (
             <Link
               href={`/documents/${prev.slug}/`}
@@ -247,7 +247,7 @@ export default function DocumentBody({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
       />
-    </main>
+    </div>
   );
 }
 
