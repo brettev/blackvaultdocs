@@ -21,8 +21,8 @@ export default async function StatsPage() {
   ];
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <nav className="text-xs font-mono uppercase tracking-widest text-gray-500">
+    <div className="mx-auto max-w-6xl px-6 py-12">
+      <nav aria-label="Breadcrumb" className="text-xs font-mono uppercase tracking-widest text-gray-500">
         <Link href="/" className="hover:text-gray-300">home</Link> // stats
       </nav>
 
@@ -64,22 +64,25 @@ export default async function StatsPage() {
           <h2 className="text-lg font-semibold text-gray-200">Documents by collection</h2>
           <div className="mt-4 overflow-hidden rounded-md border border-gray-800">
             <table className="w-full text-sm">
+              <caption className="sr-only">
+                Document counts by collection, with source agency and total document count.
+              </caption>
               <thead className="bg-gray-900/60 text-[10px] uppercase tracking-widest text-gray-400">
                 <tr>
-                  <th className="px-4 py-2 text-left font-mono">Collection</th>
-                  <th className="px-4 py-2 text-left font-mono">Slug</th>
-                  <th className="px-4 py-2 text-left font-mono">Agency</th>
-                  <th className="px-4 py-2 text-right font-mono">Documents</th>
+                  <th scope="col" className="px-4 py-2 text-left font-mono">Collection</th>
+                  <th scope="col" className="px-4 py-2 text-left font-mono">Slug</th>
+                  <th scope="col" className="px-4 py-2 text-left font-mono">Agency</th>
+                  <th scope="col" className="px-4 py-2 text-right font-mono">Documents</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800 bg-gray-950">
                 {stats.by_topic.map((t) => (
                   <tr key={t.slug}>
-                    <td className="px-4 py-2 text-gray-200">
+                    <th scope="row" className="px-4 py-2 text-left font-normal text-gray-200">
                       <Link href={`/topics/${t.slug}/`} className="hover:text-white">
                         {t.name}
                       </Link>
-                    </td>
+                    </th>
                     <td className="px-4 py-2 font-mono text-gray-500">{t.slug}</td>
                     <td className="px-4 py-2 font-mono text-gray-400">
                       {t.agency_slug ? (
@@ -121,20 +124,23 @@ export default async function StatsPage() {
           <h2 className="text-lg font-semibold text-gray-200">Recent ingestion runs</h2>
           <div className="mt-4 overflow-hidden rounded-md border border-gray-800">
             <table className="w-full text-sm">
+              <caption className="sr-only">
+                Recent ingestion runs by source, including status, document counts, and timestamps.
+              </caption>
               <thead className="bg-gray-900/60 text-[10px] uppercase tracking-widest text-gray-400">
                 <tr>
-                  <th className="px-4 py-2 text-left font-mono">Source</th>
-                  <th className="px-4 py-2 text-left font-mono">Status</th>
-                  <th className="px-4 py-2 text-right font-mono">Added</th>
-                  <th className="px-4 py-2 text-right font-mono">Seen</th>
-                  <th className="px-4 py-2 text-left font-mono">Started</th>
-                  <th className="px-4 py-2 text-left font-mono">Finished</th>
+                  <th scope="col" className="px-4 py-2 text-left font-mono">Source</th>
+                  <th scope="col" className="px-4 py-2 text-left font-mono">Status</th>
+                  <th scope="col" className="px-4 py-2 text-right font-mono">Added</th>
+                  <th scope="col" className="px-4 py-2 text-right font-mono">Seen</th>
+                  <th scope="col" className="px-4 py-2 text-left font-mono">Started</th>
+                  <th scope="col" className="px-4 py-2 text-left font-mono">Finished</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800 bg-gray-950">
                 {stats.recent_scrapes.map((s) => (
                   <tr key={s.id}>
-                    <td className="px-4 py-2 font-mono text-gray-300">{s.source}</td>
+                    <th scope="row" className="px-4 py-2 text-left font-mono font-normal text-gray-300">{s.source}</th>
                     <td className="px-4 py-2 font-mono text-gray-400">{s.status}</td>
                     <td className="px-4 py-2 text-right font-mono text-red-400">
                       {s.rows_added.toLocaleString()}
@@ -184,7 +190,7 @@ export default async function StatsPage() {
           ),
         }}
       />
-    </main>
+    </div>
   );
 }
 

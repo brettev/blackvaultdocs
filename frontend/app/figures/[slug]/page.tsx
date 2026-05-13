@@ -74,8 +74,8 @@ export default async function FigureDetailPage({ params }: { params: Promise<Par
   };
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <nav className="text-xs font-mono uppercase tracking-widest text-gray-500">
+    <div className="mx-auto max-w-6xl px-6 py-12">
+      <nav aria-label="Breadcrumb" className="text-xs font-mono uppercase tracking-widest text-gray-500">
         <Link href="/" className="hover:text-gray-300">home</Link> /{' '}
         <Link href="/figures/" className="hover:text-gray-300">figures</Link> /{' '}
         <span className="text-gray-300">{figure.slug}</span>
@@ -185,7 +185,7 @@ export default async function FigureDetailPage({ params }: { params: Promise<Par
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
       />
-    </main>
+    </div>
   );
 }
 

@@ -124,8 +124,8 @@ export default async function YearPage({ params }: { params: Promise<Params> }) 
   };
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <nav className="text-xs font-mono uppercase tracking-widest text-gray-500">
+    <div className="mx-auto max-w-6xl px-6 py-12">
+      <nav aria-label="Breadcrumb" className="text-xs font-mono uppercase tracking-widest text-gray-500">
         <Link href="/" className="hover:text-gray-300">home</Link> /{' '}
         <Link href="/years/" className="hover:text-gray-300">years</Link> /{' '}
         <span className="text-gray-300">{year}</span>
@@ -232,6 +232,6 @@ export default async function YearPage({ params }: { params: Promise<Params> }) 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(collectionPage) }}
       />
-    </main>
+    </div>
   );
 }

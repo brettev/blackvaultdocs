@@ -4,15 +4,15 @@ export function SiteHeader() {
   return (
     <header className="border-b border-gray-800 bg-gray-950/90 backdrop-blur-sm sticky top-0 z-10">
       <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-baseline gap-3 group">
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-red-500 group-hover:text-red-400">
+        <Link href="/" className="flex items-baseline gap-3 group" aria-label="BlackVaultDocs home">
+          <span aria-hidden="true" className="font-mono text-xs uppercase tracking-[0.3em] text-red-500 group-hover:text-red-400">
             bvd //
           </span>
           <span className="text-lg font-extrabold tracking-tight text-gray-100 group-hover:text-white">
             BlackVaultDocs
           </span>
         </Link>
-        <nav className="flex items-center gap-4 text-sm text-gray-400 sm:gap-5">
+        <nav aria-label="Primary" className="flex items-center gap-4 text-sm text-gray-400 sm:gap-5">
           <Link href="/topics/" className="hover:text-gray-100">Collections</Link>
           <Link href="/years/" className="hover:text-gray-100 hidden sm:inline">Years</Link>
           <Link href="/documents/" className="hover:text-gray-100">Documents</Link>
@@ -34,8 +34,8 @@ export function SiteFooter() {
     <footer className="border-t border-gray-800 bg-gray-950 text-gray-400 mt-20">
       <div className="mx-auto max-w-6xl px-6 py-10 grid gap-8 md:grid-cols-3 text-sm">
         <div>
-          <div className="font-mono text-xs uppercase tracking-[0.3em] text-red-500">bvd //</div>
-          <h4 className="mt-2 text-base font-bold text-gray-100">BlackVaultDocs</h4>
+          <div aria-hidden="true" className="font-mono text-xs uppercase tracking-[0.3em] text-red-500">bvd //</div>
+          <h2 className="mt-2 text-base font-bold text-gray-100">BlackVaultDocs</h2>
           <p className="mt-2 text-sm text-gray-500">
             A structured index of declassified US government records — JFK, RFK,
             MLK, and other FOIA-released collections. Sourced from public
@@ -44,7 +44,7 @@ export function SiteFooter() {
           </p>
         </div>
         <div>
-          <h5 className="text-xs font-semibold uppercase tracking-widest text-gray-300">Browse</h5>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-300">Browse</h2>
           <ul className="mt-3 space-y-1">
             <li><Link href="/topics/" className="hover:text-gray-100">All collections</Link></li>
             <li><Link href="/years/" className="hover:text-gray-100">Release years</Link></li>
@@ -55,11 +55,12 @@ export function SiteFooter() {
           </ul>
         </div>
         <div>
-          <h5 className="text-xs font-semibold uppercase tracking-widest text-gray-300">About</h5>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-300">About</h2>
           <ul className="mt-3 space-y-1">
             <li><Link href="/about/" className="hover:text-gray-100">About the archive</Link></li>
             <li><Link href="/privacy/" className="hover:text-gray-100">Privacy Policy</Link></li>
             <li><Link href="/terms/" className="hover:text-gray-100">Terms of Use</Link></li>
+            <li><Link href="/accessibility/" className="hover:text-gray-100">Accessibility</Link></li>
             <li><Link href="/contact/" className="hover:text-gray-100">Contact Us</Link></li>
             <li>
               <a href="https://www.archives.gov/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-100">

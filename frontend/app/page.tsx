@@ -30,7 +30,7 @@ export default async function Home() {
   const breadcrumb = breadcrumbJsonLd([{ name: 'Home', path: '/' }]);
 
   return (
-    <main>
+    <div>
       <section className="border-b border-gray-900 bg-gradient-to-b from-gray-950 via-gray-950 to-gray-900">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <p className="font-mono text-xs uppercase tracking-[0.35em] text-red-500">
@@ -218,7 +218,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 
