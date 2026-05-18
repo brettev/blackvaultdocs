@@ -52,22 +52,76 @@ const FIXED_ROUTES = [
 
 const TOPIC_DOCS_PER_PAGE = 100;
 
-const FIGURE_SLUGS = [
-  'lee-harvey-oswald',
-  'jack-ruby',
-  'sirhan-sirhan',
-  'martin-luther-king-jr',
-  'james-earl-ray',
-  'john-f-kennedy',
-  'robert-f-kennedy',
-  'j-edgar-hoover',
-  'fidel-castro',
-  'e-howard-hunt',
-  'james-jesus-angleton',
-  'david-atlee-phillips',
-  'george-joannides',
-  'allen-dulles',
+/**
+ * Each entry mirrors a subset of `lib/figures.ts` — the aliases let us
+ * check the on-disk corpus and skip figures with zero matching documents
+ * (those pages emit `noindex,follow` at runtime and would otherwise show
+ * up in GSC as Soft 404s).
+ */
+const FIGURES = [
+  { slug: 'lee-harvey-oswald', aliases: ['Lee Harvey Oswald', 'Oswald, Lee'] },
+  { slug: 'jack-ruby', aliases: ['Jack Ruby', 'Ruby, Jack', 'Jacob Rubenstein'] },
+  { slug: 'sirhan-sirhan', aliases: ['Sirhan', 'Sirhan Sirhan', 'Sirhan Bishara'] },
+  {
+    slug: 'martin-luther-king-jr',
+    aliases: [
+      'Martin Luther King',
+      'Martin Luther King Jr',
+      'Martin Luther King, Jr',
+      'MLK',
+      'Rev. King',
+      'Dr. King',
+      'King, Martin Luther',
+    ],
+  },
+  { slug: 'james-earl-ray', aliases: ['James Earl Ray', 'Ray, James Earl'] },
+  {
+    slug: 'john-f-kennedy',
+    aliases: ['John F. Kennedy', 'John Kennedy', 'President Kennedy', 'JFK', 'Kennedy, John F'],
+  },
+  {
+    slug: 'robert-f-kennedy',
+    aliases: ['Robert F. Kennedy', 'Robert Kennedy', 'Senator Kennedy', 'RFK', 'Kennedy, Robert'],
+  },
+  {
+    slug: 'j-edgar-hoover',
+    aliases: ['J. Edgar Hoover', 'Edgar Hoover', 'Director Hoover', 'Hoover, J'],
+  },
+  { slug: 'fidel-castro', aliases: ['Fidel Castro', 'Castro, Fidel'] },
+  {
+    slug: 'e-howard-hunt',
+    aliases: ['E. Howard Hunt', 'Howard Hunt', 'Hunt, E Howard', 'Hunt, Howard'],
+  },
+  {
+    slug: 'james-jesus-angleton',
+    aliases: ['Angleton', 'James Angleton', 'James Jesus Angleton'],
+  },
+  {
+    slug: 'david-atlee-phillips',
+    aliases: ['David Atlee Phillips', 'David Phillips', 'Phillips, David Atlee'],
+  },
+  { slug: 'george-joannides', aliases: ['George Joannides', 'Joannides'] },
+  { slug: 'allen-dulles', aliases: ['Allen Dulles', 'Dulles, Allen'] },
 ];
+
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function titleMatchesFigure(title, figure) {
+  const lower = (title ?? '').toLowerCase();
+  for (const alias of figure.aliases) {
+    const a = alias.toLowerCase();
+    const needsBoundary = /[a-z]$/.test(a[a.length - 1] ?? '');
+    if (needsBoundary) {
+      const re = new RegExp(`(^|\\W)${escapeRegex(a)}($|\\W)`);
+      if (re.test(lower)) return true;
+    } else if (lower.includes(a)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 const NARA_ID_RE = /\b(\d{3}-\d{5}-\d{5})\b/;
 
@@ -213,7 +267,21 @@ async function main() {
 
   /* ---------- figures ---------- */
   const figureUrls = [urlTag('/figures/', today, 'weekly')];
-  for (const slug of FIGURE_SLUGS) figureUrls.push(urlTag(`/figures/${slug}/`, today));
+  let figuresIncluded = 0;
+  let figuresSkipped = 0;
+  for (const figure of FIGURES) {
+    const matches = docs.some((d) => titleMatchesFigure(d.title, figure));
+    if (matches) {
+      figureUrls.push(urlTag(`/figures/${figure.slug}/`, today));
+      figuresIncluded += 1;
+    } else {
+      figuresSkipped += 1;
+      console.log(`[sitemap]   skipping /figures/${figure.slug}/ — 0 corpus matches`);
+    }
+  }
+  console.log(
+    `[sitemap]   figures: ${figuresIncluded} included, ${figuresSkipped} skipped (noindex)`,
+  );
   await writeSitemap('sitemap-figures.xml', figureUrls);
   indexEntries.push({ path: '/sitemaps/sitemap-figures.xml', lastmod: today });
 

@@ -20,11 +20,21 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const figure = findFigure(slug);
   if (!figure) return { title: 'Figure not found' };
+
+  // If the live corpus has zero documents matching this figure's aliases,
+  // the rendered page is just a stub ("0 matching documents" + boilerplate).
+  // Google flags those as Soft 404. Emit noindex,follow so the URL still
+  // gets crawled into related figures but stays out of the index until the
+  // corpus catches up.
+  const corpus = await loadCorpus();
+  const hasMatches = corpus.some((d) => titleMatchesFigure(d.title, figure));
+
   return {
     title: `${figure.name} — declassified files`,
     description:
       `${figure.blurb} BlackVaultDocs indexes every record whose title mentions ${figure.name} across declassified US government releases.`,
     alternates: { canonical: `/figures/${figure.slug}/` },
+    robots: hasMatches ? undefined : { index: false, follow: true },
     openGraph: {
       title: `${figure.name} — declassified files`,
       description: figure.blurb,
