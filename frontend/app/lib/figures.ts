@@ -150,23 +150,38 @@ export function findFigure(slug: string): Figure | undefined {
 }
 
 /**
- * Case-insensitive, word-boundary match of any alias against a title.
- * We escape each alias for regex safety and only match when the alias sits
- * on a word boundary so "Ray" won't pick up "raytheon" or "ray-ban".
+ * Case-insensitive, separator-tolerant match of any alias against a title.
+ *
+ * BVD ingests document titles from heterogenous sources — some use spaces
+ * ("FBI memo on Lee Harvey Oswald"), some use underscores from the
+ * underlying PDF filename ("00440377_lee_harvey_oswald_351.pdf"), and
+ * some use hyphens. We normalise both the title and the alias so any
+ * run of non-alphanumeric characters acts as a single separator, then
+ * require a non-word boundary on each side so we don't match inside a
+ * longer word (e.g. "Ray" won't match "raytheon").
  */
 export function titleMatchesFigure(title: string, figure: Figure): boolean {
-  const lower = title.toLowerCase();
+  const normTitle = normaliseForMatch(title);
   for (const alias of figure.aliases) {
-    const a = alias.toLowerCase();
-    const needsBoundary = /[a-z]$/.test(a[a.length - 1] ?? '');
-    if (needsBoundary) {
-      const re = new RegExp(`(^|\\W)${escapeRegex(a)}($|\\W)`);
-      if (re.test(lower)) return true;
-    } else if (lower.includes(a)) {
-      return true;
-    }
+    const a = normaliseForMatch(alias);
+    if (!a) continue;
+    // Demand a word boundary if the alias starts or ends in an alnum
+    // character, so "ray" cannot match "raytheon" but "JFK" can sit
+    // between any separators.
+    const startsAlnum = /^[a-z0-9]/.test(a);
+    const endsAlnum = /[a-z0-9]$/.test(a);
+    const left = startsAlnum ? '(^|[^a-z0-9])' : '';
+    const right = endsAlnum ? '($|[^a-z0-9])' : '';
+    const re = new RegExp(`${left}${escapeRegex(a)}${right}`);
+    if (re.test(normTitle)) return true;
   }
   return false;
+}
+
+function normaliseForMatch(s: string): string {
+  // Collapse any run of non-alphanumerics into a single space so
+  // "lee_harvey_oswald" matches "lee harvey oswald".
+  return (s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
 function escapeRegex(s: string): string {

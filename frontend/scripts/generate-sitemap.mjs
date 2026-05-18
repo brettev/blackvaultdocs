@@ -108,17 +108,24 @@ function escapeRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+// Keep in lock-step with lib/figures.ts titleMatchesFigure: any change
+// here must also land there so the sitemap-vs-page noindex behaviour stays
+// consistent.
+function normaliseForMatch(s) {
+  return (s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
 function titleMatchesFigure(title, figure) {
-  const lower = (title ?? '').toLowerCase();
+  const normTitle = normaliseForMatch(title);
   for (const alias of figure.aliases) {
-    const a = alias.toLowerCase();
-    const needsBoundary = /[a-z]$/.test(a[a.length - 1] ?? '');
-    if (needsBoundary) {
-      const re = new RegExp(`(^|\\W)${escapeRegex(a)}($|\\W)`);
-      if (re.test(lower)) return true;
-    } else if (lower.includes(a)) {
-      return true;
-    }
+    const a = normaliseForMatch(alias);
+    if (!a) continue;
+    const startsAlnum = /^[a-z0-9]/.test(a);
+    const endsAlnum = /[a-z0-9]$/.test(a);
+    const left = startsAlnum ? '(^|[^a-z0-9])' : '';
+    const right = endsAlnum ? '($|[^a-z0-9])' : '';
+    const re = new RegExp(`${left}${escapeRegex(a)}${right}`);
+    if (re.test(normTitle)) return true;
   }
   return false;
 }
