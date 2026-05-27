@@ -51,6 +51,13 @@ function parseSlugFromPath(pathname: string): string | null {
   return m ? m[1] : null;
 }
 
+function isKnownNonDocumentPath(pathname: string): boolean {
+  // Stale sitemap URLs (e.g. /figures/jfk-assassination/) hit this shell via
+  // CloudFront 404 → /documents/dynamic/index.html. Treat immediately as
+  // not-found with noindex instead of flashing the homepage title.
+  return /^\/(figures|topics|agencies|years|nara)\/[^/]+\/?$/i.test(pathname);
+}
+
 async function fetchDocument(slug: string): Promise<ApiResponse | null> {
   const res = await fetch(
     `${API_BASE}/api/public/documents/${encodeURIComponent(slug)}`,
@@ -164,7 +171,7 @@ export default function DynamicDocumentPage() {
     const pathname = window.location.pathname;
     const slug = parseSlugFromPath(pathname);
 
-    if (!slug) {
+    if (!slug || isKnownNonDocumentPath(pathname)) {
       setState({ phase: 'not-a-document', pathname });
       return;
     }
