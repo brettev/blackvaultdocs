@@ -4,6 +4,8 @@ import type { Metadata } from 'next';
 import { SiteHeader, SiteFooter } from './components/SiteChrome';
 import { jsonLdString, websiteJsonLd } from './lib/jsonLd';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://blackvaultdocs.com'),
   title: {

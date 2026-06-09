@@ -4,7 +4,7 @@ import { buildSearchIndex } from '../lib/api';
 import { breadcrumbJsonLd, jsonLdString } from '../lib/jsonLd';
 import { SearchBox } from './SearchBox';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Search the archive',
@@ -14,10 +14,6 @@ export const metadata: Metadata = {
 };
 
 export default async function SearchPage() {
-  // Build a tiny index at build time so the page ships static. For ~12k
-  // docs with slug+title+topic, the JSON is ~1.5 MB uncompressed / ~300 KB
-  // gzipped — small enough to inline, still responsive to filter in the
-  // browser.
   const index = await buildSearchIndex(30000, 500);
 
   return (

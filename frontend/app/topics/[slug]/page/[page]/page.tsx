@@ -1,36 +1,15 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTopic, listTopics } from '../../../../lib/api';
+import { getTopic } from '../../../../lib/api';
 import { breadcrumbJsonLd, jsonLdString } from '../../../../lib/jsonLd';
-import { STATIC_EXPORT_TOPIC_PAGE } from '../../../../lib/staticExportPlaceholder';
-
-export const dynamic = 'force-static';
-export const dynamicParams = false;
 
 const DOCS_PER_PAGE = 100;
 
 type Params = { slug: string; page: string };
 
-export async function generateStaticParams(): Promise<Params[]> {
-  const topics = await listTopics(500);
-  const all: Params[] = [];
-  for (const t of topics) {
-    const pages = Math.ceil((t.doc_count || 0) / DOCS_PER_PAGE);
-    // Page 1 lives at /topics/<slug>/ — skip it here.
-    for (let p = 2; p <= pages; p++) {
-      all.push({ slug: t.slug, page: String(p) });
-    }
-  }
-  if (all.length === 0) return [STATIC_EXPORT_TOPIC_PAGE];
-  return all;
-}
-
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug, page } = await params;
-  if (slug === STATIC_EXPORT_TOPIC_PAGE.slug && page === STATIC_EXPORT_TOPIC_PAGE.page) {
-    return { title: 'Not found' };
-  }
   const n = Number(page);
   const res = await getTopic(slug, { page: n, limit: DOCS_PER_PAGE });
   if (!res) return { title: 'Collection not found' };
@@ -47,7 +26,6 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function TopicPageN({ params }: { params: Promise<Params> }) {
   const { slug, page } = await params;
-  if (slug === STATIC_EXPORT_TOPIC_PAGE.slug && page === STATIC_EXPORT_TOPIC_PAGE.page) notFound();
   const n = Number(page);
   if (!Number.isFinite(n) || n < 2) notFound();
   const res = await getTopic(slug, { page: n, limit: DOCS_PER_PAGE });

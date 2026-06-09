@@ -2,19 +2,12 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { loadCorpus, type CorpusRow } from '../../lib/corpus';
-import { FIGURES, findFigure, titleMatchesFigure, type Figure } from '../../lib/figures';
+import { FIGURES, findFigure, titleMatchesFigure } from '../../lib/figures';
 import { breadcrumbJsonLd, jsonLdString, SITE_URL } from '../../lib/jsonLd';
-
-export const dynamic = 'force-static';
-export const dynamicParams = false;
 
 const MAX_DOCS_SHOWN = 200;
 
 type Params = { slug: string };
-
-export async function generateStaticParams(): Promise<Params[]> {
-  return FIGURES.map((f) => ({ slug: f.slug }));
-}
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;

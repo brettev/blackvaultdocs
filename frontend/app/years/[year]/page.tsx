@@ -3,10 +3,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { listTopics, getTopic, pMap } from '../../lib/api';
 import { breadcrumbJsonLd, jsonLdString, SITE_URL } from '../../lib/jsonLd';
-import { STATIC_EXPORT_YEAR } from '../../lib/staticExportPlaceholder';
-
-export const dynamic = 'force-static';
-export const dynamicParams = false;
 
 type Params = { year: string };
 
@@ -44,16 +40,8 @@ async function yearGroups(): Promise<Record<string, Array<{ slug: string; name: 
   return out;
 }
 
-export async function generateStaticParams(): Promise<Params[]> {
-  const groups = await yearGroups();
-  const years = Object.keys(groups);
-  if (years.length === 0) return [{ year: STATIC_EXPORT_YEAR }];
-  return years.map((year) => ({ year }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { year } = await params;
-  if (year === STATIC_EXPORT_YEAR) return { title: 'Not found' };
   const groups = await yearGroups();
   const list = groups[year];
   if (!list?.length) return { title: `Release year ${year} not found` };
@@ -79,7 +67,6 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function YearPage({ params }: { params: Promise<Params> }) {
   const { year } = await params;
-  if (year === STATIC_EXPORT_YEAR) notFound();
   const groups = await yearGroups();
   const list = groups[year];
   if (!list?.length) notFound();

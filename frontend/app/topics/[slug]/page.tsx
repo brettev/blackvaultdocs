@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTopic, listTopics } from '../../lib/api';
+import { getTopic } from '../../lib/api';
 import { breadcrumbJsonLd, jsonLdString, SITE_URL } from '../../lib/jsonLd';
 import {
   buildGenericTopicFaqs,
@@ -9,20 +9,12 @@ import {
   getTopicFaqs,
 } from '../../lib/topicFaqs';
 
-export const dynamic = 'force-static';
-export const dynamicParams = false;
-
 // Page 1 is `/topics/<slug>/`. Further pages live under
 // `/topics/<slug>/page/<n>/` so the main URL stays canonical.
 
 type Params = { slug: string };
 
 const DOCS_PER_PAGE = 100;
-
-export async function generateStaticParams(): Promise<Params[]> {
-  const topics = await listTopics(500);
-  return topics.map((t) => ({ slug: t.slug }));
-}
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;

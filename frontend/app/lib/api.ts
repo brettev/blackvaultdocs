@@ -1,6 +1,6 @@
 /**
  * Tiny typed client for the BlackVaultDocs public API. All calls are
- * executed at build-time (static export) with a generous timeout. We never
+ * executed at request-time (SSR) with a generous timeout. We never
  * throw — callers decide how to handle nulls so that a flaky backend can't
  * break a whole page tree.
  *
@@ -13,7 +13,9 @@
  */
 
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE ?? 'https://api.blackvaultdocs.com';
+  process.env.BVD_API_BASE ??
+  process.env.NEXT_PUBLIC_API_BASE ??
+  'https://api.blackvaultdocs.com';
 
 const DEFAULT_TIMEOUT_MS = Number(process.env.BVD_API_TIMEOUT_MS ?? 20_000);
 const DEFAULT_RETRIES = Number(process.env.BVD_API_RETRIES ?? 2);
@@ -153,7 +155,7 @@ async function getJson<T>(path: string, init?: RequestInit): Promise<T | null> {
           ...init,
           headers: { accept: 'application/json', ...(init?.headers ?? {}) },
           signal: controller.signal,
-          next: { revalidate: 0 },
+          next: { revalidate: 3600 },
         } as RequestInit);
         if (res.ok) {
           return (await res.json()) as T;

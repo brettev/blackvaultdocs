@@ -1,32 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getDocument, listAllDocumentSlugs } from '../../lib/api';
-import { STATIC_EXPORT_DOC_SLUG } from '../../lib/staticExportPlaceholder';
+import { getDocument } from '../../lib/api';
 import DocumentBody from '../../components/DocumentBody';
-
-export const dynamic = 'force-static';
-export const dynamicParams = false;
-
-// Static-generation cap: we prebuild one HTML page per document. This is the
-// biggest lever on build time / bundle size, so it's tuned per-environment
-// via MAX_STATIC_DOCS (set by CI for reduced builds). Anything above this
-// cap (and any typo URLs that hit S3 with no matching key) gets routed by
-// CloudFront 403/404 → /documents/dynamic/index.html (HTTP 200), which is a
-// CSR fallback that fetches from api.blackvaultdocs.com or shows a
-// noindex,nofollow soft-404 page.
-const MAX_STATIC_DOCS = Number(process.env.MAX_STATIC_DOCS ?? 20000);
 
 type Params = { slug: string };
 
-export async function generateStaticParams(): Promise<Params[]> {
-  const slugs = await listAllDocumentSlugs({ max: MAX_STATIC_DOCS, pageSize: 500 });
-  if (slugs.length === 0) return [{ slug: STATIC_EXPORT_DOC_SLUG }];
-  return slugs.map((slug) => ({ slug }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
-  if (slug === STATIC_EXPORT_DOC_SLUG) return { title: 'Not found' };
   const res = await getDocument(slug);
   if (!res) return { title: 'Document not found' };
   const { document: doc, topic, agency } = res;
@@ -54,7 +34,6 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function DocumentDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
-  if (slug === STATIC_EXPORT_DOC_SLUG) notFound();
   const res = await getDocument(slug);
   if (!res) notFound();
   return (
