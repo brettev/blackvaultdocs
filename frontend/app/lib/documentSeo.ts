@@ -1,9 +1,11 @@
-import type { DocumentRow } from './api';
+import type { DocumentDetail } from './api';
 
 const NARA_RE = /\b(\d{3}-\d{5}-\d{5})\b/;
 
+type DocSeoFields = Pick<DocumentDetail, 'title' | 'slug' | 'external_id' | 'summary'>;
+
 /** Extract NARA Record Identification Number from slug, external_id, or title. */
-export function extractNaraId(doc: Pick<DocumentRow, 'external_id' | 'title' | 'slug'>): string | null {
+export function extractNaraId(doc: Pick<DocSeoFields, 'external_id' | 'title' | 'slug'>): string | null {
   const candidates = [doc.external_id, doc.title, doc.slug].filter(Boolean) as string[];
   for (const raw of candidates) {
     const m = raw.replace(/^\//, '').match(NARA_RE);
@@ -13,7 +15,7 @@ export function extractNaraId(doc: Pick<DocumentRow, 'external_id' | 'title' | '
 }
 
 /** Human-readable subject line — prefer summary snippet when title is opaque/ID-like. */
-export function documentSubject(doc: Pick<DocumentRow, 'title' | 'summary'>, maxLen = 72): string {
+export function documentSubject(doc: Pick<DocSeoFields, 'title' | 'summary'>, maxLen = 72): string {
   const title = (doc.title || '').trim();
   const looksLikeId =
     NARA_RE.test(title) ||
@@ -31,7 +33,7 @@ export function documentSubject(doc: Pick<DocumentRow, 'title' | 'summary'>, max
  * Layout template appends " | BlackVaultDocs" — keep title segment without duplicate suffix.
  */
 export function buildDocumentTitle(
-  doc: Pick<DocumentRow, 'title' | 'summary' | 'external_id' | 'slug'>,
+  doc: DocSeoFields,
   agencyName?: string | null,
 ): string {
   const naraId = extractNaraId(doc);
@@ -45,7 +47,7 @@ export function buildDocumentTitle(
 }
 
 export function buildDocumentDescription(
-  doc: Pick<DocumentRow, 'title' | 'summary' | 'external_id' | 'slug'>,
+  doc: DocSeoFields,
   collectionLabel: string,
   agencyLabel: string,
 ): string {
