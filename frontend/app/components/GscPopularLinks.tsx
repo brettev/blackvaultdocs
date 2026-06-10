@@ -1,10 +1,8 @@
 import Link from 'next/link';
 import gscPopular from '../lib/gsc-popular-data';
 
-type PopularPage = { path: string; impressions: number };
-
 export default function GscPopularLinks() {
-  const pages = (gscPopular.popularPages as PopularPage[]).slice(0, 8);
+  const pages = gscPopular.popularPages.slice(0, 8);
   if (!pages.length) return null;
 
   return (
