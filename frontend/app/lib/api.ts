@@ -203,26 +203,31 @@ export async function getTopic(
   pages: number;
   isVirtual?: boolean;
 } | null> {
-  const { findVirtualTopic, virtualTopicAsRow } = await import('./virtualTopics');
+  const { capVirtualDocCount, findVirtualTopic, virtualTopicAsRow } = await import('./virtualTopics');
   const virtual = findVirtualTopic(slug);
   if (virtual) {
     const page = opts.page ?? 1;
     const limit = opts.limit ?? 250;
     const res = await listDocuments({ q: virtual.searchQuery, page, limit });
     if (!res) return null;
-    const documents = res.data.map((d) => ({
-      slug: d.slug,
-      title: d.title,
-      source: d.source,
-      pdf_url: d.pdf_url,
-      released_at: d.released_at,
-    }));
+    const total = capVirtualDocCount(res.total, virtual);
+    const pages = Math.max(1, Math.ceil(total / limit));
+    const offset = (page - 1) * limit;
+    const documents = res.data
+      .slice(0, Math.max(0, Math.min(limit, total - offset)))
+      .map((d) => ({
+        slug: d.slug,
+        title: d.title,
+        source: d.source,
+        pdf_url: d.pdf_url,
+        released_at: d.released_at,
+      }));
     return {
-      topic: virtualTopicAsRow(virtual, res.total),
+      topic: virtualTopicAsRow(virtual, total),
       documents,
-      page: res.page,
-      limit: res.limit,
-      pages: res.pages,
+      page,
+      limit,
+      pages,
       isVirtual: true,
     };
   }

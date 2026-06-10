@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { listDocuments, listTopics } from '../lib/api';
 import { breadcrumbJsonLd, jsonLdString } from '../lib/jsonLd';
-import { listVirtualTopics } from '../lib/virtualTopics';
+import { capVirtualDocCount, listVirtualTopics } from '../lib/virtualTopics';
 
 export const dynamic = 'force-static';
 
@@ -18,7 +18,7 @@ export default async function TopicsIndexPage() {
   const virtualTopics = await Promise.all(
     listVirtualTopics().map(async (v) => {
       const res = await listDocuments({ q: v.searchQuery, limit: 1 });
-      return { ...v, doc_count: res?.total ?? 0 };
+      return { ...v, doc_count: capVirtualDocCount(res?.total ?? 0, v) };
     }),
   );
   const total = topics.reduce((s, t) => s + (t.doc_count ?? 0), 0);

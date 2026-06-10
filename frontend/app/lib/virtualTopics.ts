@@ -6,6 +6,9 @@
  */
 import type { TopicRow } from './api';
 
+/** Max documents shown on a virtual topic hub (paginated below this). */
+export const VIRTUAL_TOPIC_MAX_DOCS = 200;
+
 export type VirtualTopic = {
   slug: string;
   name: string;
@@ -13,23 +16,32 @@ export type VirtualTopic = {
   agency_slug: string | null;
   /** Minimum 2 chars — passed to `/api/public/documents?q=` */
   searchQuery: string;
+  /** Cap hub list + metadata doc_count (default {@link VIRTUAL_TOPIC_MAX_DOCS}). */
+  maxDocs?: number;
   relatedFigures?: string[];
   relatedTopics?: string[];
   about?: string;
 };
+
+export function capVirtualDocCount(total: number, topic: Pick<VirtualTopic, 'maxDocs'>): number {
+  return Math.min(total, topic.maxDocs ?? VIRTUAL_TOPIC_MAX_DOCS);
+}
 
 export const VIRTUAL_TOPICS: VirtualTopic[] = [
   {
     slug: 'castro-communist-subversion',
     name: 'Castro-Communist Subversion',
     description:
-      'Papers of the ICCCA Subcommittee on Castro-Communist Subversion — overview memos, monthly action reports, and Latin America counter-subversion files from the JFK Assassination Records Collection.',
+      'Castro and Castro-Communist subversion records from the JFK Assassination Records Collection — ICCCA subcommittee memos, monthly combat-subversion reports, and related Cuba policy files indexed by title.',
     agency_slug: 'nara',
-    searchQuery: 'castro-communist',
+    // Broader than `castro-communist` (5 strict hits) — aligns with the Fidel
+    // Castro figure hub (~191 title matches) while staying under maxDocs.
+    searchQuery: 'castro',
+    maxDocs: VIRTUAL_TOPIC_MAX_DOCS,
     relatedFigures: ['fidel-castro'],
     relatedTopics: ['jfk-release-2017', 'jfk-release-2023'],
     about:
-      'The Subcommittee on Castro-Communist Subversion was chartered under the Interdepartmental Committee on Cuba (ICCCA) during the Kennedy administration to track Cuban-backed subversion across Latin America. Califano Papers and Taylor Papers file series in the JFK Assassination Records Collection preserve overview papers, monthly combat-subversion reports, and supporting cables. BlackVaultDocs indexes every release whose title or manifest mentions Castro-Communist subversion while keeping each record in its parent JFK release collection for year-based browsing.',
+      'The Subcommittee on Castro-Communist Subversion was chartered under the Interdepartmental Committee on Cuba (ICCCA) during the Kennedy administration to track Cuban-backed subversion across Latin America. Califano Papers and Taylor Papers file series in the JFK Assassination Records Collection preserve overview papers, monthly combat-subversion reports, and supporting cables. This thematic hub lists every indexed record whose title mentions Castro (including strict Castro-Communist subversion file series) while keeping each document in its parent JFK release collection for year-based browsing.',
   },
 ];
 
