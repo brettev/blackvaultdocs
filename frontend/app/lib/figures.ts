@@ -99,7 +99,13 @@ export const FIGURES: Figure[] = [
     slug: 'fidel-castro',
     name: 'Fidel Castro',
     role: 'Prime Minister and President of Cuba, 1959–2008',
-    aliases: ['Fidel Castro', 'Castro, Fidel'],
+    aliases: [
+      'Fidel Castro',
+      'Castro, Fidel',
+      'Castro',
+      'castro-communist',
+      'Castro-Communist',
+    ],
     blurb:
       'Fidel Castro led Cuba from the 1959 revolution until 2008 and was a principal subject of CIA operations discussed throughout the JFK Assassination Records Collection, including the MONGOOSE and AMLASH programs.',
   },

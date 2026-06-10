@@ -82,6 +82,7 @@ final class PublicController extends AbstractController
         $topic = (string) $request->query->get('topic', '');
         $agency = (string) $request->query->get('agency', '');
         $source = (string) $request->query->get('source', '');
+        $q = trim((string) $request->query->get('q', ''));
 
         $where = [];
         $params = [];
@@ -96,6 +97,10 @@ final class PublicController extends AbstractController
         if ($source !== '') {
             $where[] = 'source = :source';
             $params['source'] = $source;
+        }
+        if ($q !== '' && mb_strlen($q) >= 2) {
+            $where[] = '(title LIKE :q OR slug LIKE :q OR external_id LIKE :q OR summary LIKE :q)';
+            $params['q'] = '%' . $q . '%';
         }
         $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 
@@ -200,14 +205,14 @@ final class PublicController extends AbstractController
         $rows = $this->conn->fetchAllAssociative(
             'SELECT slug, title, topic_slug, agency_slug, source, pdf_url
              FROM documents
-             WHERE title LIKE :q OR slug LIKE :q OR external_id LIKE :q
+             WHERE title LIKE :q OR slug LIKE :q OR external_id LIKE :q OR summary LIKE :q
              ORDER BY CHAR_LENGTH(title) ASC, slug ASC
              LIMIT ' . $limit,
             ['q' => $like],
         );
         $total = (int) $this->conn->fetchOne(
             'SELECT COUNT(*) FROM documents
-             WHERE title LIKE :q OR slug LIKE :q OR external_id LIKE :q',
+             WHERE title LIKE :q OR slug LIKE :q OR external_id LIKE :q OR summary LIKE :q',
             ['q' => $like],
         );
         return new JsonResponse([
