@@ -8,6 +8,7 @@ import {
   faqPageJsonLd,
   getTopicFaqs,
 } from '../../lib/topicFaqs';
+import { buildTopicMetadata } from '../../lib/topicSeo';
 
 // Page 1 is `/topics/<slug>/`. Further pages live under
 // `/topics/<slug>/page/<n>/` so the main URL stays canonical.
@@ -21,25 +22,9 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const res = await getTopic(slug, { page: 1, limit: DOCS_PER_PAGE });
   if (!res) return { title: 'Collection not found' };
   const { topic } = res;
-  return {
-    title: topic.name,
-    description:
-      topic.description ??
-      `${topic.doc_count.toLocaleString()} declassified documents in the ${topic.name} collection — indexed from the National Archives.`,
-    alternates: { canonical: `/topics/${topic.slug}/` },
-    openGraph: {
-      title: topic.name,
-      description: topic.description ?? undefined,
-      type: 'article',
-      images: [{ url: `/og/topics/${topic.slug}.png`, width: 1200, height: 630 }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: topic.name,
-      description: topic.description ?? undefined,
-      images: [`/og/topics/${topic.slug}.png`],
-    },
-  };
+  const yearMatch = topic.slug.match(/-(\d{4})$/);
+  const releaseYear = yearMatch ? yearMatch[1] : null;
+  return buildTopicMetadata(topic, releaseYear);
 }
 
 export default async function TopicDetailPage({ params }: { params: Promise<Params> }) {

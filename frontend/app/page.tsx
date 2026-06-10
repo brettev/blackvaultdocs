@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getStats, listTopics } from './lib/api';
 import { breadcrumbJsonLd, jsonLdString } from './lib/jsonLd';
+import GscPopularLinks from './components/GscPopularLinks';
 
 export const dynamic = 'force-static';
 
@@ -24,7 +25,18 @@ function slugYear(slug: string): string | null {
 
 export default async function Home() {
   const [stats, topics] = await Promise.all([getStats(), listTopics(500)]);
-  const topTopics = topics.slice(0, 6);
+  const jfkSlugs = new Set([
+    'jfk-release-2025',
+    'jfk-release-2023',
+    'jfk-release-2022',
+    'jfk-release-2021',
+    'jfk-release-2017',
+  ]);
+  const sortedTopics = [
+    ...topics.filter((t) => jfkSlugs.has(t.slug)),
+    ...topics.filter((t) => !jfkSlugs.has(t.slug)),
+  ];
+  const topTopics = sortedTopics.slice(0, 6);
   const recent = stats?.recently_indexed?.slice(0, 8) ?? [];
 
   const yearTotals = new Map<string, number>();
@@ -92,6 +104,34 @@ export default async function Home() {
               Archive stats
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-14 border-b border-gray-900">
+        <h2 className="text-2xl font-bold text-white">High-search declassification topics</h2>
+        <p className="mt-2 max-w-3xl text-gray-400">
+          JFK assassination record releases and Castro-era subversion reports drive the most
+          archive searches. Start with a release collection or search the full corpus.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link
+            href="/topics/jfk-release-2017/"
+            className="rounded-md border border-red-900/50 bg-red-950/30 px-4 py-2 text-sm font-semibold text-red-200 hover:border-red-700"
+          >
+            JFK 2017–2018 Release →
+          </Link>
+          <Link
+            href="/topics/jfk-release-2023/"
+            className="rounded-md border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-200 hover:border-gray-500"
+          >
+            JFK 2023 Release →
+          </Link>
+          <Link
+            href="/search/?q=castro-communist+subversion"
+            className="rounded-md border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-200 hover:border-gray-500"
+          >
+            Castro subversion reports →
+          </Link>
         </div>
       </section>
 
@@ -196,6 +236,10 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
       />
+
+      <section className="mx-auto max-w-6xl px-6 pb-8">
+        <GscPopularLinks />
+      </section>
 
       <section className="border-t border-gray-900 bg-gray-900/40">
         <div className="mx-auto max-w-6xl px-6 py-12">
