@@ -127,10 +127,10 @@ export default async function Home() {
             JFK 2023 Release →
           </Link>
           <Link
-            href="/search/?q=castro-communist+subversion"
+            href="/topics/castro-communist-subversion/"
             className="rounded-md border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-200 hover:border-gray-500"
           >
-            Castro subversion reports →
+            Castro-Communist Subversion →
           </Link>
         </div>
       </section>

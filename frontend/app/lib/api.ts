@@ -201,7 +201,32 @@ export async function getTopic(
   page: number;
   limit: number;
   pages: number;
+  isVirtual?: boolean;
 } | null> {
+  const { findVirtualTopic, virtualTopicAsRow } = await import('./virtualTopics');
+  const virtual = findVirtualTopic(slug);
+  if (virtual) {
+    const page = opts.page ?? 1;
+    const limit = opts.limit ?? 250;
+    const res = await listDocuments({ q: virtual.searchQuery, page, limit });
+    if (!res) return null;
+    const documents = res.data.map((d) => ({
+      slug: d.slug,
+      title: d.title,
+      source: d.source,
+      pdf_url: d.pdf_url,
+      released_at: d.released_at,
+    }));
+    return {
+      topic: virtualTopicAsRow(virtual, res.total),
+      documents,
+      page: res.page,
+      limit: res.limit,
+      pages: res.pages,
+      isVirtual: true,
+    };
+  }
+
   const qs = new URLSearchParams();
   if (opts.page) qs.set('page', String(opts.page));
   if (opts.limit) qs.set('limit', String(opts.limit));
@@ -212,12 +237,14 @@ export async function getTopic(
 export async function listDocuments(params: {
   topic?: string;
   agency?: string;
+  q?: string;
   page?: number;
   limit?: number;
 } = {}): Promise<ListEnvelope<DocumentRow> | null> {
   const qs = new URLSearchParams();
   if (params.topic) qs.set('topic', params.topic);
   if (params.agency) qs.set('agency', params.agency);
+  if (params.q) qs.set('q', params.q);
   qs.set('page', String(params.page ?? 1));
   qs.set('limit', String(params.limit ?? 50));
   return getJson<ListEnvelope<DocumentRow>>(`/api/public/documents?${qs.toString()}`);

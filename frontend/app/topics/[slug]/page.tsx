@@ -9,6 +9,8 @@ import {
   getTopicFaqs,
 } from '../../lib/topicFaqs';
 import { buildTopicMetadata } from '../../lib/topicSeo';
+import { findFigure } from '../../lib/figures';
+import { findVirtualTopic } from '../../lib/virtualTopics';
 
 // Page 1 is `/topics/<slug>/`. Further pages live under
 // `/topics/<slug>/page/<n>/` so the main URL stays canonical.
@@ -24,7 +26,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { topic } = res;
   const yearMatch = topic.slug.match(/-(\d{4})$/);
   const releaseYear = yearMatch ? yearMatch[1] : null;
-  return buildTopicMetadata(topic, releaseYear);
+  const meta = buildTopicMetadata(topic, releaseYear);
+  if (topic.doc_count === 0) {
+    return { ...meta, robots: { index: false, follow: true } };
+  }
+  return meta;
 }
 
 export default async function TopicDetailPage({ params }: { params: Promise<Params> }) {
@@ -33,6 +39,7 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
   if (!res) notFound();
   const { topic, documents } = res;
   const pages = res.pages ?? Math.max(1, Math.ceil((topic.doc_count || documents.length) / DOCS_PER_PAGE));
+  const virtual = findVirtualTopic(topic.slug);
 
   const yearMatch = topic.slug.match(/-(\d{4})$/);
   const releaseYear = yearMatch ? yearMatch[1] : null;
@@ -125,6 +132,31 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
         {topic.description ? (
           <p className="mt-4 max-w-3xl text-gray-300">{topic.description}</p>
         ) : null}
+        {virtual?.relatedFigures?.length || virtual?.relatedTopics?.length ? (
+          <div className="mt-6 flex flex-wrap gap-3">
+            {virtual.relatedFigures?.map((figSlug) => {
+              const fig = findFigure(figSlug);
+              return fig ? (
+                <Link
+                  key={figSlug}
+                  href={`/figures/${figSlug}/`}
+                  className="rounded-md border border-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-200 hover:border-gray-500"
+                >
+                  {fig.name} →
+                </Link>
+              ) : null;
+            })}
+            {virtual.relatedTopics?.map((topicSlug) => (
+              <Link
+                key={topicSlug}
+                href={`/topics/${topicSlug}/`}
+                className="rounded-md border border-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-200 hover:border-gray-500"
+              >
+                {topicSlug} release →
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </header>
 
       <section className="mt-8">
@@ -169,13 +201,8 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
           About this collection
         </h2>
         <p className="mt-2 text-sm text-gray-300">
-          Documents in the {topic.name} collection were released by the
-          National Archives as part of ongoing declassification programs. Each
-          file retains its original NARA Record Identification Number so it
-          can be cross-referenced against academic and journalistic citations.
-          Use the pagination below to walk the full {topic.doc_count.toLocaleString()}-record
-          list, or jump to any individual document for metadata and an
-          in-browser PDF preview.
+          {virtual?.about ??
+            `Documents in the ${topic.name} collection were released by the National Archives as part of ongoing declassification programs. Each file retains its original NARA Record Identification Number so it can be cross-referenced against academic and journalistic citations. Use the pagination below to walk the full ${topic.doc_count.toLocaleString()}-record list, or jump to any individual document for metadata and an in-browser PDF preview.`}
         </p>
       </section>
 

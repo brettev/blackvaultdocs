@@ -127,6 +127,28 @@ const TOPIC_FAQS: Record<string, Faq[]> = {
         'The NARA Record Identification Number (RIF) is the canonical identifier for every assassination-collection record — a three-part code of the form AGENCY-FILESERIES-ITEM (e.g. 104-10003-10041). BlackVaultDocs preserves it in each document slug and exposes it on the document detail page.',
     },
   ],
+  'castro-communist-subversion': [
+    {
+      question: 'What is the Castro-Communist Subversion collection?',
+      answer:
+        'It is a thematic index of declassified records whose titles or manifest comments reference the ICCCA Subcommittee on Castro-Communist Subversion — overview papers, monthly combat-subversion reports, and supporting files from the JFK Assassination Records Collection released on archives.gov.',
+    },
+    {
+      question: 'Who chaired the Subcommittee on Castro-Communist Subversion?',
+      answer:
+        'The subcommittee operated under the Interdepartmental Committee on Cuba (ICCCA) during the Kennedy administration. Indexed papers include memos from Marine Corps Brigadier General Victor H. Krulak to the ICCCA and file series from Joseph Califano\'s and Maxwell Taylor\'s personal papers.',
+    },
+    {
+      question: 'Why are these records in the JFK collection?',
+      answer:
+        'Congress mandated disclosure of assassination-related records in 1992. Files on Cuba policy and counter-subversion that agencies deemed relevant to the Kennedy assassination were folded into the President John F. Kennedy Assassination Records Collection and released in tranches from 2017 through 2025.',
+    },
+    {
+      question: 'Are the PDFs hosted on BlackVaultDocs?',
+      answer:
+        'No. Every PDF link points to the canonical file on archives.gov. BlackVaultDocs stores metadata — NARA record ID, title, release date, and parent JFK release collection — so researchers can search and cite without mirroring the primary source.',
+    },
+  ],
   'doj-oig-fbi': [
     {
       question: 'What is this collection?',

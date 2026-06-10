@@ -52,6 +52,14 @@ const FIXED_ROUTES = [
 
 const TOPIC_DOCS_PER_PAGE = 100;
 
+/** Keep in lock-step with app/lib/virtualTopics.ts */
+const VIRTUAL_TOPICS = [
+  {
+    slug: 'castro-communist-subversion',
+    searchQuery: 'castro-communist',
+  },
+];
+
 /**
  * Each entry mirrors a subset of `lib/figures.ts` — the aliases let us
  * check the on-disk corpus and skip figures with zero matching documents
@@ -265,6 +273,21 @@ async function main() {
     const pageCount = Math.ceil((t.doc_count || 0) / TOPIC_DOCS_PER_PAGE);
     for (let p = 2; p <= pageCount; p++) {
       topicUrls.push(urlTag(`/topics/${t.slug}/page/${p}/`, lastmod));
+    }
+  }
+  for (const vt of VIRTUAL_TOPICS) {
+    const res = await fetchJson(
+      `/api/public/documents?q=${encodeURIComponent(vt.searchQuery)}&limit=1`,
+    );
+    const docCount = res?.total ?? 0;
+    if (docCount === 0) {
+      console.log(`[sitemap]   skipping /topics/${vt.slug}/ — 0 virtual-topic matches`);
+      continue;
+    }
+    topicUrls.push(urlTag(`/topics/${vt.slug}/`, today));
+    const pageCount = Math.ceil(docCount / TOPIC_DOCS_PER_PAGE);
+    for (let p = 2; p <= pageCount; p++) {
+      topicUrls.push(urlTag(`/topics/${vt.slug}/page/${p}/`, today));
     }
   }
   await writeSitemap('sitemap-topics.xml', topicUrls);

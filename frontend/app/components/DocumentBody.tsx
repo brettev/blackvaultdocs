@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { breadcrumbJsonLd, jsonLdString } from '../lib/jsonLd';
 import type { DocumentDetail } from '../lib/api';
+import type { DocumentHubLink } from '../lib/virtualTopics';
 
 type Topic = {
   slug: string;
@@ -17,6 +18,7 @@ interface Props {
   doc: DocumentDetail;
   topic: Topic | null;
   agency: Agency | null;
+  hubLinks?: DocumentHubLink[];
   prev: Neighbour;
   next: Neighbour;
   related: Related[];
@@ -30,16 +32,25 @@ export default function DocumentBody({
   doc,
   topic,
   agency,
+  hubLinks = [],
   prev,
   next,
   related,
 }: Props) {
   const naraId = doc.external_id?.replace(/^\//, '').replace(/\.pdf$/i, '') ?? null;
+  const collectionLink =
+    topic != null
+      ? { slug: topic.slug, name: topic.name }
+      : hubLinks.find((l) => l.slug.startsWith('jfk-release-')) ?? null;
+  const thematicLinks = hubLinks.filter((l) => l.slug !== collectionLink?.slug);
   const jsonLd = buildJsonLd({ doc, topic, agency });
   const breadcrumb = breadcrumbJsonLd([
     { name: 'Home', path: '/' },
     { name: 'Documents', path: '/documents/' },
-    ...(topic ? [{ name: topic.name, path: `/topics/${topic.slug}/` }] : []),
+    ...(collectionLink
+      ? [{ name: collectionLink.name, path: `/topics/${collectionLink.slug}/` }]
+      : []),
+    ...thematicLinks.map((l) => ({ name: l.name, path: `/topics/${l.slug}/` })),
     { name: doc.title, path: `/documents/${doc.slug}/` },
   ]);
 
@@ -49,14 +60,22 @@ export default function DocumentBody({
         <Link href="/" className="hover:text-gray-300">home</Link>
         {' / '}
         <Link href="/documents/" className="hover:text-gray-300">documents</Link>
-        {topic ? (
+        {collectionLink ? (
           <>
             {' / '}
-            <Link href={`/topics/${topic.slug}/`} className="hover:text-gray-300">
-              {topic.slug}
+            <Link href={`/topics/${collectionLink.slug}/`} className="hover:text-gray-300">
+              {collectionLink.name}
             </Link>
           </>
         ) : null}
+        {thematicLinks.map((l) => (
+          <span key={l.slug}>
+            {' / '}
+            <Link href={`/topics/${l.slug}/`} className="hover:text-gray-300">
+              {l.name}
+            </Link>
+          </span>
+        ))}
       </nav>
 
       <h1 className="mt-4 break-words text-3xl font-extrabold tracking-tight text-white md:text-4xl font-mono">
@@ -64,14 +83,23 @@ export default function DocumentBody({
       </h1>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-400">
-        {topic ? (
+        {collectionLink ? (
           <Link
-            href={`/topics/${topic.slug}/`}
+            href={`/topics/${collectionLink.slug}/`}
             className="rounded-full border border-gray-800 bg-gray-900/60 px-3 py-1 font-mono uppercase tracking-widest hover:border-red-800 hover:text-white"
           >
-            {topic.name}
+            {collectionLink.name}
           </Link>
         ) : null}
+        {thematicLinks.map((l) => (
+          <Link
+            key={l.slug}
+            href={`/topics/${l.slug}/`}
+            className="rounded-full border border-red-900/50 bg-red-950/30 px-3 py-1 font-mono uppercase tracking-widest hover:border-red-800 hover:text-white"
+          >
+            {l.name}
+          </Link>
+        ))}
         {agency ? (
           <Link
             href={`/agencies/${agency.slug}/`}
@@ -125,7 +153,7 @@ export default function DocumentBody({
       <dl className="mt-8 grid gap-3 rounded-md border border-gray-800 bg-gray-900/40 p-5 text-sm md:grid-cols-2">
         {naraId ? <MetaRow label="NARA ID" value={naraId} /> : null}
         <MetaRow label="Source" value={doc.source} />
-        {topic ? <MetaRow label="Collection" value={topic.name} /> : null}
+        {collectionLink ? <MetaRow label="Collection" value={collectionLink.name} /> : null}
         {agency ? <MetaRow label="Agency" value={agency.name} /> : null}
         {doc.classification ? (
           <MetaRow label="Classification" value={doc.classification} />

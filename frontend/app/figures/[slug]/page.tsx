@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { loadCorpus, type CorpusRow } from '../../lib/corpus';
 import { FIGURES, findFigure, titleMatchesFigure } from '../../lib/figures';
+import { virtualTopicsForFigure } from '../../lib/virtualTopics';
 import { breadcrumbJsonLd, jsonLdString, SITE_URL } from '../../lib/jsonLd';
 
 const MAX_DOCS_SHOWN = 200;
@@ -59,6 +60,7 @@ export default async function FigureDetailPage({ params }: { params: Promise<Par
     byTopic.set(key, cur);
   }
   const topicRows = [...byTopic.values()].sort((a, b) => b.count - a.count);
+  const thematicTopics = virtualTopicsForFigure(figure.slug);
 
   const breadcrumb = breadcrumbJsonLd([
     { name: 'Home', path: '/' },
@@ -97,6 +99,19 @@ export default async function FigureDetailPage({ params }: { params: Promise<Par
           <p className="mt-2 text-sm text-gray-400">{figure.role}</p>
         ) : null}
         <p className="mt-4 max-w-3xl text-gray-300">{figure.blurb}</p>
+        {thematicTopics.length > 0 ? (
+          <div className="mt-6 flex flex-wrap gap-3">
+            {thematicTopics.map((t) => (
+              <Link
+                key={t.slug}
+                href={`/topics/${t.slug}/`}
+                className="rounded-md border border-red-900/50 bg-red-950/30 px-4 py-2 text-sm font-semibold text-red-200 hover:border-red-700"
+              >
+                {t.name} collection →
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </header>
 
       {matches.length === 0 ? (

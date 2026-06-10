@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getDocument } from '../../lib/api';
 import { buildDocumentDescription, buildDocumentTitle } from '../../lib/documentSeo';
+import { getDocumentHubLinks } from '../../lib/virtualTopics';
 import DocumentBody from '../../components/DocumentBody';
 
 type Params = { slug: string };
@@ -27,11 +28,13 @@ export default async function DocumentDetailPage({ params }: { params: Promise<P
   const { slug } = await params;
   const res = await getDocument(slug);
   if (!res) notFound();
+  const hubLinks = getDocumentHubLinks(res.document, res.topic);
   return (
     <DocumentBody
       doc={res.document}
       topic={res.topic}
       agency={res.agency}
+      hubLinks={hubLinks}
       prev={res.prev ?? null}
       next={res.next ?? null}
       related={res.related ?? []}
