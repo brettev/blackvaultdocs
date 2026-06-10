@@ -6,7 +6,15 @@ import { breadcrumbJsonLd, jsonLdString } from './lib/jsonLd';
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
+  title: 'Declassified US Government Documents — NARA & FOIA Archive',
+  description:
+    'Search declassified US government documents: JFK, RFK, MLK releases, NARA record IDs, and FOIA collections. Every page links to the original archives.gov PDF with structured metadata.',
   alternates: { canonical: '/' },
+  openGraph: {
+    title: 'BlackVaultDocs — Declassified Document Archive',
+    description: 'Machine-readable index of declassified US records with NARA citations.',
+    url: 'https://blackvaultdocs.com/',
+  },
 };
 
 function slugYear(slug: string): string | null {

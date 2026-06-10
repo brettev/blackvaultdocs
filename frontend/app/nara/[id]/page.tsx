@@ -17,9 +17,10 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const map = await loadNaraIdMap();
   const hit = map[id];
   if (!hit) return { title: 'NARA record not found' };
+  const subject = hit.title.length > 60 ? `${hit.title.slice(0, 57)}…` : hit.title;
   return {
-    title: `NARA ${id} — ${hit.title}`,
-    description: `NARA Record Identification Number ${id} resolves to "${hit.title}". Indexed by BlackVaultDocs.`,
+    title: `${id} — ${subject} | Declassified`,
+    description: `NARA record ${id} — declassified document "${hit.title}". Full citation and archives.gov source on BlackVaultDocs.`,
     alternates: { canonical: `/documents/${hit.slug}/` },
     robots: {
       index: true,

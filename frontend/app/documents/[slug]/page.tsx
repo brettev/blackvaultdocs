@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getDocument } from '../../lib/api';
+import { buildDocumentDescription, buildDocumentTitle } from '../../lib/documentSeo';
 import DocumentBody from '../../components/DocumentBody';
 
 type Params = { slug: string };
@@ -12,23 +13,13 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { document: doc, topic, agency } = res;
   const collectionLabel = topic?.name ?? 'National Archives';
   const agencyLabel = agency?.name ?? 'NARA';
-  const description = [
-    `Declassified ${collectionLabel} document "${doc.title}"`,
-    `released by ${agencyLabel}`,
-    doc.external_id ? `NARA record ${doc.external_id.replace(/^\//, '')}.` : null,
-    'Indexed by BlackVaultDocs — original PDF hosted at archives.gov.',
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const title = buildDocumentTitle(doc, agencyLabel);
+  const description = buildDocumentDescription(doc, collectionLabel, agencyLabel);
   return {
-    title: `${doc.title} · ${collectionLabel}`,
+    title,
     description,
     alternates: { canonical: `/documents/${doc.slug}/` },
-    openGraph: {
-      title: `${doc.title} — ${collectionLabel}`,
-      description,
-      type: 'article',
-    },
+    openGraph: { title, description, type: 'article' },
   };
 }
 
