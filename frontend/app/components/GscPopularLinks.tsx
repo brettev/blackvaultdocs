@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import gscPopular from '../../data/gsc-popular.json';
+import gscPopular from '../lib/gsc-popular-data';
 
 type PopularPage = { path: string; impressions: number };
 
