@@ -9,6 +9,21 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   trailingSlash: true,
+  /**
+   * The blog (posts + sitemap-blog.xml) is rendered by the Symfony backend on
+   * api.blackvaultdocs.com. Apache proxies the whole apex to this Next app,
+   * so proxy those paths through to the backend or they 404 on the apex.
+   */
+  async rewrites() {
+    const api = process.env.BVD_API_BASE ?? "https://api.blackvaultdocs.com";
+    return [
+      { source: "/sitemap-blog.xml", destination: `${api}/sitemap-blog.xml` },
+      // trailingSlash: true means incoming blog paths normally carry a
+      // trailing slash, but match both forms to be safe.
+      { source: "/blog/:slug/", destination: `${api}/blog/:slug` },
+      { source: "/blog/:slug", destination: `${api}/blog/:slug` },
+    ];
+  },
 };
 
 export default nextConfig;

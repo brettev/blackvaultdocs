@@ -2,8 +2,8 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 {% for post in posts %}
   <url>
-    <loc>https://blackvaultdocs.com/blog/{{ post.slug }}</loc>
-    <lastmod>{{ post.updatedAt|date('Y-m-d\TH:i:sP') }}</lastmod>
+    <loc>https://blackvaultdocs.com/blog/{{ post.slug }}/</loc>
+    <lastmod>{{ post.updatedAt|date('Y-m-d') }}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
