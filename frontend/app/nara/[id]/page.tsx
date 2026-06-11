@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { loadNaraIdMap } from '../../lib/corpus';
 
 /**
@@ -36,5 +36,7 @@ export default async function NaraIdRedirectPage({ params }: { params: Promise<P
   if (!hit) notFound();
 
   const target = `/documents/${hit.slug}/`;
-  redirect(target);
+  // 308 (not 307): these URLs are submitted in sitemap-nara.xml and Google
+  // should consolidate signals onto the /documents/ canonical permanently.
+  permanentRedirect(target);
 }
