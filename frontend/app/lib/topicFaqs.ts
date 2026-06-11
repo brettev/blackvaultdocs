@@ -20,6 +20,28 @@ const RFK_HISTORY =
   'Robert F. Kennedy was assassinated on June 5, 1968 at the Ambassador Hotel in Los Angeles. Federal investigative files — spanning the FBI, CIA, and State Department — were largely sealed for decades and only began appearing on the National Archives website in 2025 under Executive Order 14176.';
 
 const TOPIC_FAQS: Record<string, Faq[]> = {
+  'jfk-assassination': [
+    {
+      question: 'What are the JFK assassination files?',
+      answer:
+        'They are the declassified records of the President John F. Kennedy Assassination Records Collection at the National Archives — Warren Commission exhibits, CIA and FBI files, and HSCA working papers. The 1992 Assassination Records Act required their public disclosure, completed in tranches between 2017 and 2025.',
+    },
+    {
+      question: 'Have all JFK assassination files been released?',
+      answer:
+        'The March 2025 release under Executive Order 14176 published roughly 80,000 pages without redactions — the final large tranche. Earlier releases in 2017–2018, 2021, 2022, and 2023 disclosed the bulk of the collection, some with redactions that the 2025 batch removed.',
+    },
+    {
+      question: 'How do I cite a JFK assassination record?',
+      answer:
+        'Every record carries a NARA Record Identification Number of the form AGENCY-FILESERIES-ITEM (e.g. 104-10003-10041). BlackVaultDocs preserves that ID in each document slug and title, and every page links directly to the original PDF hosted on archives.gov.',
+    },
+    {
+      question: 'Which release collection should I start with?',
+      answer:
+        'The 2017–2018 release is the largest (about 24,000 indexed records) and contains most Warren Commission-era files. The 2023 and 2025 releases add newly declassified CIA, FBI, and State Department records. This hub links every release collection plus thematic and figure-based indexes.',
+    },
+  ],
   'jfk-release-2025': [
     {
       question: 'What is the JFK 2025 release?',

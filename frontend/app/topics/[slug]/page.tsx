@@ -10,7 +10,10 @@ import {
 } from '../../lib/topicFaqs';
 import { buildTopicMetadata } from '../../lib/topicSeo';
 import { findFigure } from '../../lib/figures';
-import { findVirtualTopic } from '../../lib/virtualTopics';
+import {
+  findVirtualTopic,
+  JFK_RELEASE_TOPIC_SLUGS,
+} from '../../lib/virtualTopics';
 
 // Page 1 is `/topics/<slug>/`. Further pages live under
 // `/topics/<slug>/page/<n>/` so the main URL stays canonical.
@@ -152,12 +155,25 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
                 href={`/topics/${topicSlug}/`}
                 className="rounded-md border border-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-200 hover:border-gray-500"
               >
-                {topicSlug} release →
+                {JFK_RELEASE_TOPIC_SLUGS[topicSlug] ??
+                  findVirtualTopic(topicSlug)?.name ??
+                  `${topicSlug} release`}{' '}
+                →
               </Link>
             ))}
           </div>
         ) : null}
       </header>
+
+      {virtual?.intro?.length ? (
+        <section className="mt-8 max-w-3xl space-y-4">
+          {virtual.intro.map((para, i) => (
+            <p key={i} className="text-gray-300 leading-relaxed">
+              {para}
+            </p>
+          ))}
+        </section>
+      ) : null}
 
       <section className="mt-8">
         <div className="flex items-baseline justify-between">

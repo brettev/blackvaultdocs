@@ -12,7 +12,7 @@
  * Output layout:
  *   /sitemap.xml                    — sitemap index (entry point in robots.txt)
  *   /sitemaps/sitemap-core.xml      — fixed routes, agencies, years, figures
- *   /sitemaps/sitemap-topics.xml    — one URL per topic + every pagination page
+ *   /sitemaps/sitemap-topics.xml    — one canonical URL per topic (no /page/N/)
  *   /sitemaps/sitemap-figures.xml   — one URL per figure
  *   /sitemaps/sitemap-nara.xml      — one URL per NARA-ID short link
  *   /sitemaps/sitemap-docs-<source>-<index>.xml
@@ -50,10 +50,12 @@ const FIXED_ROUTES = [
   '/about/',
 ];
 
-const TOPIC_DOCS_PER_PAGE = 100;
-
 /** Keep in lock-step with app/lib/virtualTopics.ts */
 const VIRTUAL_TOPICS = [
+  {
+    slug: 'jfk-assassination',
+    searchQuery: 'jfk assassination',
+  },
   {
     slug: 'castro-communist-subversion',
     searchQuery: 'castro-communist',
@@ -265,15 +267,11 @@ async function main() {
   await writeSitemap('sitemap-core.xml', coreUrls);
   indexEntries.push({ path: '/sitemaps/sitemap-core.xml', lastmod: today });
 
-  /* ---------- topics ---------- */
+  /* ---------- topics (canonical page-1 URLs only — /page/N/ is crawl waste) ---------- */
   const topicUrls = [];
   for (const t of topics) {
     const lastmod = (t.updated_at ?? '').slice(0, 10) || today;
     topicUrls.push(urlTag(`/topics/${t.slug}/`, lastmod));
-    const pageCount = Math.ceil((t.doc_count || 0) / TOPIC_DOCS_PER_PAGE);
-    for (let p = 2; p <= pageCount; p++) {
-      topicUrls.push(urlTag(`/topics/${t.slug}/page/${p}/`, lastmod));
-    }
   }
   for (const vt of VIRTUAL_TOPICS) {
     const res = await fetchJson(
@@ -285,10 +283,6 @@ async function main() {
       continue;
     }
     topicUrls.push(urlTag(`/topics/${vt.slug}/`, today));
-    const pageCount = Math.ceil(docCount / TOPIC_DOCS_PER_PAGE);
-    for (let p = 2; p <= pageCount; p++) {
-      topicUrls.push(urlTag(`/topics/${vt.slug}/page/${p}/`, today));
-    }
   }
   await writeSitemap('sitemap-topics.xml', topicUrls);
   const topicsLastmod =

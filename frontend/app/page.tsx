@@ -115,8 +115,14 @@ export default async function Home() {
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
-            href="/topics/jfk-release-2017/"
+            href="/topics/jfk-assassination/"
             className="rounded-md border border-red-900/50 bg-red-950/30 px-4 py-2 text-sm font-semibold text-red-200 hover:border-red-700"
+          >
+            JFK Assassination Files →
+          </Link>
+          <Link
+            href="/topics/jfk-release-2017/"
+            className="rounded-md border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-200 hover:border-gray-500"
           >
             JFK 2017–2018 Release →
           </Link>
