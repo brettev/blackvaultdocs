@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
     const api = process.env.BVD_API_BASE ?? "https://api.blackvaultdocs.com";
     return [
       { source: "/sitemap-blog.xml", destination: `${api}/sitemap-blog.xml` },
+      // Index before slug rewrites so /blog/ does not capture as :slug.
+      { source: "/blog/", destination: `${api}/blog` },
+      { source: "/blog", destination: `${api}/blog` },
       // trailingSlash: true means incoming blog paths normally carry a
       // trailing slash, but match both forms to be safe.
       { source: "/blog/:slug/", destination: `${api}/blog/:slug` },

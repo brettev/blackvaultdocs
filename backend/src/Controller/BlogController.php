@@ -10,6 +10,16 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class BlogController extends AbstractController
 {
+    #[Route("/blog", name: "blog_index", methods: ["GET"])]
+    public function index(EntityManagerInterface $em): Response
+    {
+        $posts = $em->getRepository(BlogPost::class)->findBy([], ["publishedAt" => "DESC"]);
+
+        return $this->render("blog/index.html.twig", [
+            "posts" => $posts,
+        ]);
+    }
+
     #[Route("/blog/{slug}", name: "blog_post_show", methods: ["GET"])]
     public function show(string $slug, EntityManagerInterface $em): Response
     {
