@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!hit) return { title: 'NARA record not found' };
   const subject = hit.title.length > 60 ? `${hit.title.slice(0, 57)}…` : hit.title;
   return {
-    title: `${id} — ${subject} | Declassified`,
-    description: `NARA record ${id} — declassified document "${hit.title}". Full citation and archives.gov source on BlackVaultDocs.`,
+    title: `${id} — ${subject} PDF | Declassified`,
+    description: `NARA record ${id} PDF — declassified document "${hit.title}". Full citation and archives.gov download on BlackVaultDocs.`,
     alternates: { canonical: `/documents/${hit.slug}/` },
     robots: {
       index: true,

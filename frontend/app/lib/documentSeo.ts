@@ -79,9 +79,9 @@ export function buildDocumentDescription(
     `declassified ${collectionLabel} document`,
     subject ? `"${subject}"` : null,
     agencyLabel ? `from ${agencyLabel}` : null,
-    'Full citation and archives.gov source on BlackVaultDocs.',
+    'Full PDF citation and archives.gov source on BlackVaultDocs.',
   ].filter(Boolean).join(' — ');
   // Lead with bare record ID for GSC exact-match queries (mirrors /nara/[id]/ meta).
-  if (naraId) return `${naraId} — ${tail}`;
+  if (naraId) return `${naraId} PDF — ${tail}`;
   return tail;
 }

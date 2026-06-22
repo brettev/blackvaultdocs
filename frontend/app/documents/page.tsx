@@ -6,9 +6,9 @@ import { breadcrumbJsonLd, jsonLdString } from '../lib/jsonLd';
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'All documents',
+  title: 'Declassified Document Index — NARA Record IDs & PDF Archive',
   description:
-    'Recent declassified documents indexed by BlackVaultDocs — drawn from the full corpus of FOIA releases at the National Archives.',
+    'Browse declassified US government documents by NARA record ID. JFK, RFK, and MLK releases, CIA CREST, FBI Vault, and FOIA collections — every entry links to the archives.gov PDF with structured metadata.',
   alternates: { canonical: '/documents/' },
 };
 
