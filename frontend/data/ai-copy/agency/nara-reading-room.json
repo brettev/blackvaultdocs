@@ -1,0 +1,92 @@
+{
+  "site": "blackvaultdocs",
+  "kind": "agency",
+  "slug": "nara-reading-room",
+  "overlayTarget": "/agencies/nara/",
+  "canonicalPath": "/guides/nara-reading-room/",
+  "title": "NARA Reading Room: 49,624 Indexed Records",
+  "metaDescription": "BlackVaultDocs indexes 49,624 National Archives records, including FOIA-released CIA, FBI, and State Department materials. Not a complete FOIA log.",
+  "h1": "National Archives: 49,624 records indexed on BlackVaultDocs",
+  "lede": "BlackVaultDocs indexes 49,624 documents tagged to the National Archives and Records Administration, the independent federal agency that preserves and documents government and historical records, including FOIA-released materials from the CIA, FBI, State Department, and others. The 49,624 count is an ingest grouping of public reading rooms and NARA collections on this site. It is not a complete FOIA log and not NARA’s own published inventory of every record it holds. PDFs remain on the originating archive.",
+  "sections": [
+    {
+      "h2": "What the 49,624-document count measures",
+      "paragraphs": [
+        "The 49,624 figure is the BlackVaultDocs catalog total for agency slug nara. Agency name is National Archives and Records Administration. Each indexed row is one file this ingest tagged to that agency grouping. Page length inside a PDF does not add extra rows. A short transmittal and a long report each increment the count by one when they appear as separate indexed records.",
+        "The packet description states that NARA is an independent federal agency that preserves and documents government and historical records, including FOIA-released materials from the CIA, FBI, State Department, and others. “Including” those agencies names classes of material in the grouping. It does not mean 49,624 is a CIA count, an FBI count, or a State Department count. This page does not invent those splits.",
+        "Agency groupings on BlackVaultDocs come from ingest of public reading rooms and NARA collections. The source note is explicit: this is not a complete FOIA log. Files NARA has not posted, files posted only on another agency’s site and not tagged nara in this ingest, and files this ingest missed are outside 49,624."
+      ]
+    },
+    {
+      "h2": "CIA, FBI, State, and others as named sources, not as subtotals",
+      "paragraphs": [
+        "FOIA-released materials from the CIA, FBI, State Department, and others are the examples in the packet description. The 49,624 total is the agency-hub count for NARA as tagged on this site. Adding imagined CIA, FBI, and State subtotals would produce figures no packet published. Cite 49,624 as the NARA grouping; cite the three agencies as named sources of FOIA-released material inside that description.",
+        "NARA’s role in the description is preservation and documentation of government and historical records. This overlay does not treat 49,624 as a finding about any assassination, surveillance program, or foreign-policy episode. The count is a catalog of indexed public files tagged to this agency slug."
+      ]
+    },
+    {
+      "h2": "What 49,624 does not claim",
+      "paragraphs": [
+        "This page does not claim that 49,624 is every document NARA holds, every document NARA has declassified, or every FOIA release in the federal government. The source note states that agency groupings come from BlackVaultDocs ingest of public reading rooms and NARA collections and that the grouping is not a complete FOIA log.",
+        "The page also does not interpret the 49,624 files as proof of a conspiracy. Titles and scans are the record. Conspiracy commentary is outside the index. No NARA ID is in the packet facts, so none is cited here as a document identifier."
+      ]
+    },
+    {
+      "h2": "Using the NARA agency hub",
+      "paragraphs": [
+        "The National Archives and Records Administration agency hub is the live list behind 49,624. The all-agencies directory places this hub beside other agency slugs in the same ingest. Open the originating archive for PDFs; BlackVaultDocs does not re-host them.",
+        "Search on the hub matches indexed fields, not necessarily every word inside a scan. A name missing from titles can still appear inside a PDF. The 49,624 count will not tell you that; the file will."
+      ]
+    },
+    {
+      "h2": "How to cite the 49,624 figure",
+      "paragraphs": [
+        "Cite 49,624 as BlackVaultDocs’ indexed document count for the National Archives and Records Administration agency grouping. Cite NARA as the independent federal agency that preserves and documents government and historical records, including FOIA-released materials from the CIA, FBI, State Department, and others. Do not cite 49,624 as NARA’s official complete inventory. If ingest is rebuilt, the count can move. PDFs remain on the originating archive."
+      ]
+    },
+    {
+      "h2": "Reading-room grouping versus a FOIA log",
+      "paragraphs": [
+        "A FOIA log is an agency’s list of requests and dispositions. This hub is not that list. It is an ingest grouping of public reading-room and NARA-collection files tagged nara, totaling 49,624 indexed documents on BlackVaultDocs. Treating 49,624 as “how many FOIA requests NARA processed” would be a category error.",
+        "CIA, FBI, and State Department materials appear in the description as FOIA-released records preserved and documented through NARA’s role, not as three separate agency hubs inside this packet. Other agency pages on this site, if they exist, have their own packets. This overlay only has 49,624 and the NARA description.",
+        "Researchers who need a specific file should open the agency hub, then the originating archive. This prose will not silently rewrite 49,624 after you load the page. An ingest rebuild is what moves the number, not a rereading of a cable."
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "q": "How many NARA documents does BlackVaultDocs index?",
+      "a": "BlackVaultDocs indexes 49,624 documents tagged to the National Archives and Records Administration. That count is an ingest grouping of public reading rooms and NARA collections. It is not a complete FOIA log and not NARA’s own published inventory of every record it holds. PDFs remain on the originating archive."
+    },
+    {
+      "q": "Does the 49,624 include CIA, FBI, and State Department files?",
+      "a": "The packet description says NARA preserves and documents government and historical records, including FOIA-released materials from the CIA, FBI, State Department, and others. It does not split 49,624 into those agencies. This page does not invent those subtotals. The 49,624 figure is the NARA grouping as tagged on this site."
+    },
+    {
+      "q": "Is the NARA hub a complete FOIA log?",
+      "a": "No. The source note states that agency groupings come from BlackVaultDocs ingest of public reading rooms and NARA collections and that the grouping is not a complete FOIA log. Files not posted, not tagged nara in this ingest, or missed by ingest are outside 49,624."
+    },
+    {
+      "q": "Does 49,624 NARA files prove a conspiracy in any assassination case?",
+      "a": "No. The 49,624-document index is a catalog of public files tagged to NARA on BlackVaultDocs. This page does not interpret those files as proof of a plot. Researchers should open the agency hub and the originating archive for the scans, not read 49,624 as an argument."
+    }
+  ],
+  "takeaways": [
+    "BlackVaultDocs indexes 49,624 documents tagged to the National Archives and Records Administration.",
+    "NARA is described as an independent federal agency that preserves government and historical records.",
+    "The grouping includes FOIA-released materials from the CIA, FBI, State Department, and others; no subtotals are in the packet.",
+    "The count is not a complete FOIA log and not NARA’s official complete inventory.",
+    "PDFs remain on the originating archive; 49,624 is a catalog count, not a conspiracy finding."
+  ],
+  "internalLinks": [
+    {
+      "href": "/agencies/nara/",
+      "anchor": "National Archives and Records Administration agency hub"
+    },
+    {
+      "href": "/agencies/",
+      "anchor": "All agencies"
+    }
+  ],
+  "sourceNote": "Agency groupings from BlackVaultDocs ingest of public reading rooms and NARA collections. Not a complete FOIA log."
+}

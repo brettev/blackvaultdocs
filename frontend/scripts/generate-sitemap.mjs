@@ -21,7 +21,7 @@
  * The script fails open (writes a minimal index + core sitemap) if the API
  * is unreachable so the build can still complete.
  */
-import { writeFile, mkdir, readFile } from 'node:fs/promises';
+import { writeFile, mkdir, readFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,6 +48,8 @@ const FIXED_ROUTES = [
   '/search/',
   '/stats/',
   '/about/',
+  '/guides/',
+  '/ties/',
 ];
 
 /** Keep in lock-step with app/lib/virtualTopics.ts */
@@ -264,6 +266,27 @@ async function main() {
     if (y) years.add(y[1]);
   }
   for (const y of [...years].sort()) coreUrls.push(urlTag(`/years/${y}/`, today));
+  try {
+    const copyRoot = resolve(__dirname, '..', 'data', 'ai-copy');
+    if (existsSync(copyRoot)) {
+      const kinds = await readdir(copyRoot, { withFileTypes: true });
+      for (const kind of kinds) {
+        if (!kind.isDirectory()) continue;
+        const files = await readdir(resolve(copyRoot, kind.name));
+        for (const f of files) {
+          if (!f.endsWith('.json')) continue;
+          try {
+            const copy = JSON.parse(await readFile(resolve(copyRoot, kind.name, f), 'utf8'));
+            if (copy.canonicalPath) coreUrls.push(urlTag(copy.canonicalPath, today));
+          } catch {
+            /* skip */
+          }
+        }
+      }
+    }
+  } catch {
+    /* optional */
+  }
   await writeSitemap('sitemap-core.xml', coreUrls);
   indexEntries.push({ path: '/sitemaps/sitemap-core.xml', lastmod: today });
 

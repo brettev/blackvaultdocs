@@ -1,0 +1,96 @@
+{
+  "site": "blackvaultdocs",
+  "kind": "topic",
+  "slug": "jfk-release-2025-declassified-documents",
+  "overlayTarget": "/topics/jfk-release-2025/",
+  "canonicalPath": "/guides/jfk-release-2025-declassified-documents/",
+  "title": "JFK 2025 Release: 2,706 Indexed Records",
+  "metaDescription": "BlackVaultDocs indexes 2,706 JFK Assassination Records from the 2025 NARA release, including redacted CIA, FBI, and State cables — 5.1% of 52,684.",
+  "h1": "JFK Assassination Records — 2025 Release, 2,706 indexed files",
+  "lede": "BlackVaultDocs indexes 2,706 documents from the JFK Assassination Records — 2025 Release, 5.1% of a site-wide index of 52,684 documents. The National Archives released the files in 2025 under the President John F. Kennedy Assassination Records Collection Act of 1992, including previously redacted CIA, FBI, and State Department cables. The 2,706 count is an index of public NARA releases, not a claim that the 2025 posting finished the collection. PDFs remain on the originating archive.",
+  "sections": [
+    {
+      "h2": "What the 2,706-document count includes",
+      "paragraphs": [
+        "The 2,706 figure is the indexed total for topic slug jfk-release-2025. Collection name is JFK Assassination Records — 2025 Release. The packet description states that the National Archives released the files in 2025 under the President John F. Kennedy Assassination Records Collection Act of 1992, including previously redacted CIA, FBI, and State Department cables. “Including” those cables does not mean every one of the 2,706 rows is a cable. It means the posting contains that class of material among other file types the index does not further break out.",
+        "Two thousand seven hundred six is 5.1% of the 52,684 documents in the BlackVaultDocs index. The 2025 JFK slice is smaller than the 2017–2018 and 2022 JFK hubs in this ingest. Size here is catalog volume. A previously redacted cable and a short routing sheet each add one to 2,706.",
+        "Agency slug is nara. The statutory label in the description is the President John F. Kennedy Assassination Records Collection Act of 1992. This page cites that Act as the release authority named in the packet. It does not add NARA IDs; none are in the facts."
+      ]
+    },
+    {
+      "h2": "Previously redacted cables versus the 2,706 total",
+      "paragraphs": [
+        "The packet names previously redacted CIA, FBI, and State Department cables as part of the 2025 posting. It does not give a sub-count of how many of the 2,706 rows are cables, how many were CIA, how many were FBI, or how many were State. This prose therefore does not invent those splits. The honest citation is 2,706 indexed files in a 2025 NARA release that includes previously redacted cables from those three agencies.",
+        "Redaction history is not reconstructed here. “Previously redacted” is the packet’s description of material in the 2025 posting. It is not a table of which lines were blacked out in an earlier year. Researchers who need the page images should open the originating archive from the collection hub."
+      ]
+    },
+    {
+      "h2": "2025 as one posting year in a 52,684-document index",
+      "paragraphs": [
+        "The 2,706 rows are not the 2017–2018, 2021, 2022, or 2023 JFK hubs. Each release year is a separate topic slug. All of them sit inside the 52,684-document site-wide index. Adding 2,706 to another year’s docCount without naming both years produces a figure no packet published.",
+        "A 2025 date on the collection name means NARA released this batch in 2025 under the 1992 Act. It does not mean the events in the files occurred in 2025. Most of the underlying records, as with other JFK postings, concern the assassination period and related agency files; this packet does not list those dates beyond the 2025 release year."
+      ]
+    },
+    {
+      "h2": "What this page does not argue",
+      "paragraphs": [
+        "This overlay does not treat 2,706 newly indexed files as proof of a conspiracy or as proof that earlier official accounts were complete. The record described here is a 2025 NARA posting under the President John F. Kennedy Assassination Records Collection Act of 1992, including previously redacted CIA, FBI, and State Department cables, indexed as 2,706 documents. Interpretation of those cables belongs to the reader of the scans, not to this catalog page.",
+        "Previously redacted CIA, FBI, and State Department cables are named as included material. Inclusion is not a sub-count. A researcher who needs to know whether a given row is a cable must open the title on the hub and then the originating archive. The 2,706 figure will not answer that question by itself."
+      ]
+    },
+    {
+      "h2": "Using the 2025 JFK collection hub",
+      "paragraphs": [
+        "The JFK Assassination Records — 2025 Release collection page is the list behind 2,706. All collections shows the other topic hubs that share the 52,684-document index. The document index is site-wide. PDFs remain on the originating archive.",
+        "Cite 2,706 as a BlackVaultDocs index count for this 2025 posting, and cite 52,684 as the site-wide total. Both can move if ingest is rebuilt. Do not cite 2,706 as NARA’s complete remaining JFK inventory."
+      ]
+    },
+    {
+      "h2": "Limits of the 2,706-row catalog",
+      "paragraphs": [
+        "The 5.1% share is 2,706 divided by 52,684. It is a volume comparison inside this ingest. It is not a statement that 5.1% of the statutory JFK collection posted in 2025. NARA’s full holdings can exceed both 2,706 and 52,684.",
+        "Cite 2,706 with the 2025 collection name and with the President John F. Kennedy Assassination Records Collection Act of 1992 as the release authority named in the packet. Cite 52,684 only as the site-wide denominator. PDFs remain on the originating archive."
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "q": "How many JFK 2025 release documents does BlackVaultDocs index?",
+      "a": "BlackVaultDocs indexes 2,706 documents under JFK Assassination Records — 2025 Release. That is 5.1% of the 52,684 documents in the site-wide index. The National Archives released the files in 2025 under the President John F. Kennedy Assassination Records Collection Act of 1992. PDFs remain on the originating archive."
+    },
+    {
+      "q": "Does the 2025 JFK release include CIA, FBI, and State Department cables?",
+      "a": "The packet description says the 2025 posting includes previously redacted CIA, FBI, and State Department cables. It does not say how many of the 2,706 indexed files are cables or how those cables split among the three agencies. This page does not invent those sub-counts."
+    },
+    {
+      "q": "What law covers the 2025 JFK files?",
+      "a": "The packet names the President John F. Kennedy Assassination Records Collection Act of 1992 as the authority under which the National Archives released the files in 2025. Agency tagging is nara. The 2,706 count is BlackVaultDocs’ index of that public posting, not a statutory inventory published by NARA."
+    },
+    {
+      "q": "Is 2,706 the last of the JFK records?",
+      "a": "This page does not say that. 2,706 is the indexed count for the 2025 release hub. The site-wide index holds 52,684 documents across collections. Other JFK years have separate hubs. NARA’s holdings can exceed both figures. Open the collection hub for the live list behind 2,706."
+    }
+  ],
+  "takeaways": [
+    "BlackVaultDocs indexes 2,706 documents in JFK Assassination Records — 2025 Release.",
+    "That slice is 5.1% of the 52,684 documents in the site-wide index.",
+    "NARA released the files in 2025 under the President John F. Kennedy Assassination Records Collection Act of 1992.",
+    "The posting includes previously redacted CIA, FBI, and State Department cables; no cable sub-count is in the packet.",
+    "2,706 is a catalog count, not a finding about the assassination."
+  ],
+  "internalLinks": [
+    {
+      "href": "/topics/jfk-release-2025/",
+      "anchor": "JFK Assassination Records — 2025 Release collection"
+    },
+    {
+      "href": "/topics/",
+      "anchor": "All collections"
+    },
+    {
+      "href": "/documents/",
+      "anchor": "Document index"
+    }
+  ],
+  "sourceNote": "Document counts from BlackVaultDocs index of public NARA / FOIA releases. PDFs remain on the originating archive."
+}

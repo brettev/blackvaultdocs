@@ -1,0 +1,88 @@
+{
+  "site": "blackvaultdocs",
+  "kind": "topic",
+  "slug": "jfk-release-2017-declassified-documents",
+  "overlayTarget": "/topics/jfk-release-2017/",
+  "canonicalPath": "/guides/jfk-release-2017-declassified-documents/",
+  "title": "JFK 2017–2018 Release: 23,950 Indexed Records",
+  "metaDescription": "BlackVaultDocs indexes 23,950 files from the JFK Assassination Records 2017–2018 release. That batch is 45.5% of 52,684 documents in the site index.",
+  "h1": "JFK Assassination Records — 2017–2018 Release, 23,950 indexed files",
+  "lede": "BlackVaultDocs indexes 23,950 documents from the JFK Assassination Records — 2017–2018 Release, the largest single collection slice in a site-wide index of 52,684 documents. The files were disclosed in 2017 and 2018 from the President John F. Kennedy Assassination Records Collection and merged onto a single archives.gov landing page. The count is an index of public NARA releases, not a claim about what those pages prove. PDFs remain on the originating archive.",
+  "sections": [
+    {
+      "h2": "What the 23,950-document count measures",
+      "paragraphs": [
+        "The 23,950 figure is the number of records BlackVaultDocs has indexed under the topic slug jfk-release-2017. It is a catalog count for one named collection, JFK Assassination Records — 2017–2018 Release, not a count of unique historical events and not a count of pages inside each PDF. A single indexed row may be a cable, a memorandum, a report cover, or a multi-page scan. The index does not re-host the files; it points at the originating archive.",
+        "That 23,950 slice is 45.5% of the 52,684 documents in the BlackVaultDocs index. No other topic packet in this harvest is larger. The share describes catalog volume, not investigative weight. A short routing slip and a long operational file each add one to docCount. Treating 23,950 as “nearly half of the JFK record” would confuse this site’s index with the full NARA collection, which is larger than any one website’s ingest.",
+        "Agency tagging on the packet is nara — National Archives and Records Administration. The 2017 and 2018 disclosures were posted from the President John F. Kennedy Assassination Records Collection and later merged onto a single archives.gov landing page. BlackVaultDocs uses that merged landing as the collection identity. Researchers who need a specific NARA identifier must open the source file; this overlay does not invent NARA IDs that are absent from the packet facts."
+      ]
+    },
+    {
+      "h2": "How the 2017–2018 release sits in the 52,684-document index",
+      "paragraphs": [
+        "The site-wide total of 52,684 documents is the denominator for every topic share on BlackVaultDocs. The 2017–2018 JFK release accounts for 23,950 of those rows. Later JFK batches — 2021, 2022, 2023, and 2025 — are separate topic hubs with their own docCount values. They are not subsets of the 23,950. Adding this collection to a later release and calling the sum “the JFK files” double-counts nothing only if each hub is kept distinct; collapsing them into one headline erases the release-year structure NARA used when it posted the files.",
+        "The description on the packet is specific: files disclosed in 2017 and 2018, merged onto one archives.gov page. That merge is an archival presentation choice, not a new declassification wave. A researcher comparing this hub to a 2022 or 2025 hub is comparing different posting years inside the same statutory collection name, the President John F. Kennedy Assassination Records Collection. The 23,950 count belongs only to the 2017–2018 posting identity."
+      ]
+    },
+    {
+      "h2": "What this collection page is not",
+      "paragraphs": [
+        "This page is not a finding on who killed President Kennedy and not a ranking of theories. The 23,950 indexed records are public files from a named NARA release. Titles, dates, and agency stamps on those files are the record; commentary that the files “prove” a plot is outside the index. BlackVaultDocs does not add editorial conclusions to the 23,950-document count.",
+        "The index is also not a complete FOIA log. Files that NARA has not posted, files this ingest missed, and files that live only on other agency reading rooms do not appear in 23,950 or in 52,684. A zero on a name search means the name is absent from indexed titles in this collection slice, not that NARA never held a file on that person."
+      ]
+    },
+    {
+      "h2": "How to use the collection hub",
+      "paragraphs": [
+        "The JFK Assassination Records — 2017–2018 Release collection page lists the indexed rows behind the 23,950 count. The all-collections directory places this hub beside other topic slices that together make up the 52,684-document index. The document index is the site-wide list, not a substitute for archives.gov. Open the originating PDF for the page images; this site’s row is a pointer plus catalog metadata.",
+        "Sort and search on the hub are catalog tools. They do not re-order historical importance. A file near the top of a title sort is alphabetically early, not “more declassified.” The 45.5% share of 52,684 is the only volume comparison this packet supports."
+      ]
+    },
+    {
+      "h2": "Source and limits of the 23,950 figure",
+      "paragraphs": [
+        "Document counts come from the BlackVaultDocs index of public NARA and FOIA releases. The 23,950 number can move if the ingest is rebuilt, if duplicates are collapsed, or if additional 2017–2018 files are added under the same topic slug. It will not move because a researcher interprets a cable differently. PDFs remain on the originating archive. Cite 23,950 as an index count for JFK Assassination Records — 2017–2018 Release, and cite 52,684 as the site-wide document total, not as NARA’s own published inventory of the full JFK collection."
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "q": "How many JFK 2017–2018 release documents does BlackVaultDocs index?",
+      "a": "BlackVaultDocs indexes 23,950 documents under JFK Assassination Records — 2017–2018 Release. That is 45.5% of the 52,684 documents in the site-wide index. The files were disclosed in 2017 and 2018 from the President John F. Kennedy Assassination Records Collection and merged onto a single archives.gov landing page. PDFs remain on the originating archive."
+    },
+    {
+      "q": "Is 23,950 the full JFK Assassination Records Collection?",
+      "a": "No. 23,950 is the indexed count for the 2017–2018 posting identity only. The site-wide index holds 52,684 documents across collections. Other JFK release years are separate hubs. NARA’s full collection can exceed both figures. This page does not claim that 23,950 equals every record NARA holds on the assassination."
+    },
+    {
+      "q": "Where do the 2017–2018 JFK files actually live?",
+      "a": "They were posted from the President John F. Kennedy Assassination Records Collection and merged onto a single archives.gov landing page. BlackVaultDocs indexes those public releases; it does not re-host the PDFs. The originating archive remains the source for page images. Agency tagging on this collection is nara."
+    },
+    {
+      "q": "Does this collection prove a conspiracy in the Kennedy assassination?",
+      "a": "The 23,950-document index is a catalog of public NARA files, not a finding. Titles and scans are the record. This page does not interpret the files as proof of any plot. Researchers who want a specific document should open the collection hub and then the originating archive, not treat the 23,950 count as an argument."
+    }
+  ],
+  "takeaways": [
+    "BlackVaultDocs indexes 23,950 documents in JFK Assassination Records — 2017–2018 Release.",
+    "That slice is 45.5% of the 52,684 documents in the site-wide index.",
+    "Files were disclosed in 2017 and 2018 from the President John F. Kennedy Assassination Records Collection and merged onto one archives.gov page.",
+    "The count is an index of public NARA releases; PDFs remain on the originating archive.",
+    "This page does not treat 23,950 as a finding about the assassination."
+  ],
+  "internalLinks": [
+    {
+      "href": "/topics/jfk-release-2017/",
+      "anchor": "JFK Assassination Records — 2017–2018 Release collection"
+    },
+    {
+      "href": "/topics/",
+      "anchor": "All collections"
+    },
+    {
+      "href": "/documents/",
+      "anchor": "Document index"
+    }
+  ],
+  "sourceNote": "Document counts from BlackVaultDocs index of public NARA / FOIA releases. PDFs remain on the originating archive."
+}

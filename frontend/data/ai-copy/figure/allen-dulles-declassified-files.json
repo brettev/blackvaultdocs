@@ -1,0 +1,96 @@
+{
+  "site": "blackvaultdocs",
+  "kind": "figure",
+  "slug": "allen-dulles-declassified-files",
+  "overlayTarget": "/figures/allen-dulles/",
+  "canonicalPath": "/guides/allen-dulles-declassified-files/",
+  "title": "Allen Dulles CIA and Warren Commission Files",
+  "metaDescription": "Allen Dulles directed the CIA from 1953 to 1961 and served on the Warren Commission. His correspondence appears in the JFK collection and State files.",
+  "h1": "Allen Dulles in CIA, Warren Commission, and State files",
+  "lede": "Allen Dulles directed the CIA from 1953 to 1961 and served on the Warren Commission investigating the assassination of President Kennedy. His correspondence appears across both the JFK collection and early Cold War State Department files. BlackVaultDocs’ figure hub matches the name Allen Dulles in document titles from public NARA releases. The hub is a title index, not a finding on the Commission and not a file count. PDFs remain on the originating archive.",
+  "sections": [
+    {
+      "h2": "What the Dulles figure hub lists",
+      "paragraphs": [
+        "The figure slug allen-dulles groups indexed titles that name Allen Dulles. The packet supplies no document count, so this page does not invent one. The public-record identity in the blurb is: directed the CIA from 1953 to 1961; served on the Warren Commission investigating the assassination of President Kennedy; correspondence appears across both the JFK collection and early Cold War State Department files.",
+        "Two holding series are named for correspondence: the JFK collection, and early Cold War State Department files. The packet does not split title hits between those series. This overlay does not invent that split. A title match is a catalog hit, not a finding that the file is a Commission memorandum rather than a State cable.",
+        "1953 to 1961 is the CIA directorship window in the blurb. The packet does not give a start date for Warren Commission service. This page therefore does not invent one. It cites Commission service as the blurb cites it, alongside the assassination investigation of President Kennedy."
+      ]
+    },
+    {
+      "h2": "CIA director years and Warren Commission service",
+      "paragraphs": [
+        "The blurb names two public roles: CIA director from 1953 to 1961, and Warren Commission member investigating the assassination of President Kennedy. Title hits on the hub may reflect either role or later correspondence. The packet does not split those classes. This page does not invent that split.",
+        "The related topic href on this packet is the JFK assassination collection, which matches the JFK collection named in the blurb as an internal link. Researchers who need the scans should open the originating archive from the figure hub. BlackVaultDocs matches names in titles from public NARA releases; it does not re-host the PDFs."
+      ]
+    },
+    {
+      "h2": "How name matching works for Dulles",
+      "paragraphs": [
+        "Figure hubs match names in document titles from public NARA releases indexed on BlackVaultDocs. The Dulles hub is that match, not a complete CIA director’s archive and not a complete FOIA log. A missing title hit means the indexed title in this ingest did not match the name as implemented.",
+        "The all-figures directory lists other people in the same name index. Use the Dulles hub for titles that name him. A State Department file from the early Cold War that omits the personal name would not be promised by this name index."
+      ]
+    },
+    {
+      "h2": "What this page does not claim",
+      "paragraphs": [
+        "This overlay does not argue that Dulles’s CIA tenure or Commission service proves a conspiracy in the Kennedy assassination. It restates the packet: directed the CIA from 1953 to 1961; served on the Warren Commission investigating the assassination of President Kennedy; correspondence appears across the JFK collection and early Cold War State Department files. Conspiracy commentary is outside the index.",
+        "No NARA ID is in the facts. No document total is in the facts. Cite 1953, 1961, the Warren Commission, the JFK collection, and early Cold War State Department files. Do not attach an invented file count to Dulles’s name."
+      ]
+    },
+    {
+      "h2": "Where to read Dulles-titled files",
+      "paragraphs": [
+        "The Allen Dulles figure hub is the live title list. All figures shows the rest of the name index. The JFK assassination collection is the related topic link on this packet. Open the originating archive for scans. A later ingest can retag titles; this prose still will not invent a document count.",
+        "The JFK collection and early Cold War State Department files are two holding series for correspondence. This page does not split title hits between them. A State file that omits Dulles’s name would not be promised by this name index."
+      ]
+    },
+    {
+      "h2": "How to cite Allen Dulles on this site",
+      "paragraphs": [
+        "Cite Allen Dulles as CIA director from 1953 to 1961 and as a member of the Warren Commission investigating the assassination of President Kennedy, with correspondence appearing across the JFK collection and early Cold War State Department files, as matched by name in indexed titles on BlackVaultDocs. Do not cite a document count from this guide. Do not treat the figure hub as a finding on the Commission. The source note is that figure hubs match names in document titles from public NARA releases indexed on BlackVaultDocs.",
+        "Cite 1953 to 1961 as the CIA directorship. Cite Warren Commission service as investigating the assassination of President Kennedy. Cite correspondence across the JFK collection and early Cold War State Department files. Do not attach a file count to Dulles’s name from this guide."
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "q": "Who was Allen Dulles in the declassified files?",
+      "a": "The packet identifies Allen Dulles as CIA director from 1953 to 1961 and as a member of the Warren Commission investigating the assassination of President Kennedy. His correspondence appears across the JFK collection and early Cold War State Department files. BlackVaultDocs matches the name in indexed titles. This page does not assign a file count."
+    },
+    {
+      "q": "When did Allen Dulles direct the CIA?",
+      "a": "The blurb states that he directed the CIA from 1953 to 1961. Those years are the bounds this page cites. The packet does not give a document count for that span. Titles that name Dulles appear on the figure hub; PDFs remain on the originating archive."
+    },
+    {
+      "q": "Where does Dulles correspondence appear in this record?",
+      "a": "The blurb says his correspondence appears across both the JFK collection and early Cold War State Department files. It does not split title hits between those series. This page does not invent those splits. Open the figure hub and the originating archive for the scans."
+    },
+    {
+      "q": "Does the Dulles figure hub prove a conspiracy in the Kennedy assassination?",
+      "a": "No. The hub matches the name Allen Dulles in document titles from public NARA releases indexed on BlackVaultDocs. It restates the 1953–1961 CIA directorship and Warren Commission service. It does not interpret those files as proof of a plot. Open the figure hub and the originating archive for the scans."
+    }
+  ],
+  "takeaways": [
+    "Allen Dulles directed the CIA from 1953 to 1961.",
+    "He served on the Warren Commission investigating the assassination of President Kennedy.",
+    "His correspondence appears across the JFK collection and early Cold War State Department files.",
+    "The figure hub matches that name in indexed titles; this packet supplies no document count.",
+    "This page does not treat title hits as a conspiracy finding."
+  ],
+  "internalLinks": [
+    {
+      "href": "/figures/allen-dulles/",
+      "anchor": "Allen Dulles figure hub"
+    },
+    {
+      "href": "/figures/",
+      "anchor": "All figures"
+    },
+    {
+      "href": "/topics/jfk-assassination/",
+      "anchor": "JFK assassination collection"
+    }
+  ],
+  "sourceNote": "Figure hubs match names in document titles from public NARA releases indexed on BlackVaultDocs."
+}

@@ -1,0 +1,96 @@
+{
+  "site": "blackvaultdocs",
+  "kind": "figure",
+  "slug": "j-edgar-hoover-declassified-files",
+  "overlayTarget": "/figures/j-edgar-hoover/",
+  "canonicalPath": "/guides/j-edgar-hoover-declassified-files/",
+  "title": "J. Edgar Hoover in FBI Files, 1924–1972",
+  "metaDescription": "J. Edgar Hoover directed the FBI from 1924 until his death in 1972 and authorized surveillance in MLK, JFK, and civil-rights-era files in this corpus.",
+  "h1": "J. Edgar Hoover in MLK, JFK, and civil-rights-era files",
+  "lede": "J. Edgar Hoover directed the FBI from 1924 until his death in 1972 and personally authorized surveillance operations that dominate the MLK, JFK, and civil-rights-era files in the BlackVaultDocs corpus. BlackVaultDocs’ figure hub matches the name J. Edgar Hoover in document titles from public NARA releases. The hub is a title index, not a judgment of those operations and not a file count. PDFs remain on the originating archive.",
+  "sections": [
+    {
+      "h2": "What the Hoover figure hub lists",
+      "paragraphs": [
+        "The figure slug j-edgar-hoover groups indexed titles that name J. Edgar Hoover. The packet supplies no document count, so this page does not invent one. The public-record identity in the blurb is: directed the FBI from 1924 until his death in 1972; personally authorized surveillance operations that dominate the MLK, JFK, and civil-rights-era files in the BlackVaultDocs corpus.",
+        "“Dominate” is the blurb’s description of how those authorized operations sit in the MLK, JFK, and civil-rights-era files in this corpus. It is not a percentage of the site index and not a count of authorizations. This overlay does not convert the word into a number. A title match is a catalog hit, not a finding that Hoover signed every page of the scan.",
+        "1924 and 1972 are the bounds of the FBI directorship in the packet. 1972 is also the year of death in the blurb. This page restates those years. It does not add a birth year or a successor’s name, because those are not in the facts."
+      ]
+    },
+    {
+      "h2": "MLK, JFK, and civil-rights-era files as named slices",
+      "paragraphs": [
+        "The blurb names three slices of the corpus: MLK, JFK, and civil-rights-era files. It states that surveillance operations Hoover personally authorized dominate those slices. The packet does not split title hits among the three slices. This page does not invent that split.",
+        "Researchers who need the scans should open the originating archive from the figure hub. BlackVaultDocs matches names in titles from public NARA releases; it does not re-host the PDFs. The related topic href on this packet is the JFK assassination collection, which is the internal link the packet supplies."
+      ]
+    },
+    {
+      "h2": "How name matching works for Hoover",
+      "paragraphs": [
+        "Figure hubs match names in document titles from public NARA releases indexed on BlackVaultDocs. The Hoover hub is that match, not a complete FBI director’s archive and not a complete FOIA log. A missing title hit means the indexed title in this ingest did not match the name as implemented.",
+        "The all-figures directory lists other people in the same name index. Use the Hoover hub for titles that name him. Use the collection link for the broader JFK posting named on this packet’s internal links."
+      ]
+    },
+    {
+      "h2": "What this page does not claim",
+      "paragraphs": [
+        "This overlay does not retry Hoover’s authorizations and does not treat the files as proof of a conspiracy in the JFK or King assassinations. It restates the packet: directed the FBI from 1924 until death in 1972; personally authorized surveillance operations that dominate MLK, JFK, and civil-rights-era files in the BlackVaultDocs corpus. Conspiracy commentary is outside the index.",
+        "No NARA ID is in the facts. No document total is in the facts. Cite 1924, 1972, and the three named corpus slices. Do not attach an invented file count to Hoover’s name."
+      ]
+    },
+    {
+      "h2": "Where to read Hoover-titled files",
+      "paragraphs": [
+        "The J. Edgar Hoover figure hub is the live title list. All figures shows the rest of the name index. The JFK assassination collection href is the related topic link on this packet. Open the originating archive for scans. A later ingest can retag titles; this prose still will not invent a document count.",
+        "MLK, JFK, and civil-rights-era files are three slices named in the blurb. “Dominate” describes how authorized surveillance sits in those slices in this corpus. It is not a percentage of the site index. This page does not invent three subtotals."
+      ]
+    },
+    {
+      "h2": "How to cite J. Edgar Hoover on this site",
+      "paragraphs": [
+        "Cite J. Edgar Hoover as director of the FBI from 1924 until his death in 1972, having personally authorized surveillance operations that dominate the MLK, JFK, and civil-rights-era files in the BlackVaultDocs corpus, as matched by name in indexed titles on BlackVaultDocs. Do not cite a document count from this guide. Do not treat the figure hub as a verdict on those operations. The source note is that figure hubs match names in document titles from public NARA releases indexed on BlackVaultDocs.",
+        "Cite 1924 and 1972 as the FBI directorship bounds, with 1972 also the year of death in the blurb. Cite personal authorization of surveillance operations as the packet cites it. Do not attach a file count to Hoover’s name from this guide."
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "q": "Who was J. Edgar Hoover in the declassified files?",
+      "a": "The packet identifies J. Edgar Hoover as director of the FBI from 1924 until his death in 1972. He personally authorized surveillance operations that dominate the MLK, JFK, and civil-rights-era files in the BlackVaultDocs corpus. BlackVaultDocs matches the name in indexed titles. This page does not assign a file count."
+    },
+    {
+      "q": "When did J. Edgar Hoover direct the FBI?",
+      "a": "The blurb states that he directed the FBI from 1924 until his death in 1972. Those years are the bounds this page cites. The packet does not give a document count for that span. Titles that name Hoover appear on the figure hub; PDFs remain on the originating archive."
+    },
+    {
+      "q": "Which file slices does Hoover’s authorization dominate in this corpus?",
+      "a": "The blurb names MLK, JFK, and civil-rights-era files in the BlackVaultDocs corpus. It does not split title hits among those three slices. This page does not invent those splits. Open the figure hub and the originating archive for the scans."
+    },
+    {
+      "q": "Does the Hoover figure hub prove a conspiracy in the JFK or King cases?",
+      "a": "No. The hub matches the name J. Edgar Hoover in document titles from public NARA releases indexed on BlackVaultDocs. It restates the 1924–1972 directorship and the authorized surveillance described in the blurb. It does not interpret those files as proof of a plot."
+    }
+  ],
+  "takeaways": [
+    "J. Edgar Hoover directed the FBI from 1924 until his death in 1972.",
+    "He personally authorized surveillance operations named in the figure blurb.",
+    "Those operations dominate MLK, JFK, and civil-rights-era files in the BlackVaultDocs corpus.",
+    "The figure hub matches that name in indexed titles; this packet supplies no document count.",
+    "This page does not treat title hits as a conspiracy finding."
+  ],
+  "internalLinks": [
+    {
+      "href": "/figures/j-edgar-hoover/",
+      "anchor": "J. Edgar Hoover figure hub"
+    },
+    {
+      "href": "/figures/",
+      "anchor": "All figures"
+    },
+    {
+      "href": "/topics/jfk-assassination/",
+      "anchor": "JFK assassination collection"
+    }
+  ],
+  "sourceNote": "Figure hubs match names in document titles from public NARA releases indexed on BlackVaultDocs."
+}

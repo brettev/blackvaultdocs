@@ -19,6 +19,8 @@ export function SiteHeader() {
           <Link href="/agencies/" className="hover:text-gray-100 hidden sm:inline">Agencies</Link>
           <Link href="/search/" className="hover:text-gray-100">Search</Link>
           <Link href="/stats/" className="hover:text-gray-100 hidden md:inline">Stats</Link>
+          <Link href="/guides/" className="hover:text-gray-100 hidden md:inline">Guides</Link>
+          <Link href="/ties/" className="hover:text-gray-100 hidden md:inline">Ties</Link>
           <Link href="/about/" className="hover:text-gray-100 hidden md:inline">About</Link>
           <Link href="/privacy/" className="hover:text-gray-100 hidden lg:inline">Privacy</Link>
           <Link href="/terms/" className="hover:text-gray-100 hidden lg:inline">Terms</Link>
@@ -51,7 +53,8 @@ export function SiteFooter() {
             <li><Link href="/documents/" className="hover:text-gray-100">All documents</Link></li>
             <li><Link href="/agencies/" className="hover:text-gray-100">Agencies</Link></li>
             <li><Link href="/search/" className="hover:text-gray-100">Search</Link></li>
-            <li><Link href="/stats/" className="hover:text-gray-100">Archive stats</Link></li>
+            <li><Link href="/guides/" className="hover:text-gray-100">Guides</Link></li>
+            <li><Link href="/ties/" className="hover:text-gray-100">Ties</Link></li>
           </ul>
         </div>
         <div>

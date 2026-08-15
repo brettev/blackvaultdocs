@@ -14,6 +14,8 @@ import {
   findVirtualTopic,
   JFK_RELEASE_TOPIC_SLUGS,
 } from '../../lib/virtualTopics';
+import { loadOverlay } from '../../lib/aiCopy';
+import AiCopyBlock from '../../components/AiCopyBlock';
 
 // Page 1 is `/topics/<slug>/`. Further pages live under
 // `/topics/<slug>/page/<n>/` so the main URL stays canonical.
@@ -134,6 +136,11 @@ export default async function TopicDetailPage({ params }: { params: Promise<Para
         </div>
         {topic.description ? (
           <p className="mt-4 max-w-3xl text-gray-300">{topic.description}</p>
+        ) : null}
+        {loadOverlay(`/topics/${topic.slug}/`) ? (
+          <div className="mt-6">
+            <AiCopyBlock copy={loadOverlay(`/topics/${topic.slug}/`)!} variant="overlay" />
+          </div>
         ) : null}
         {virtual?.relatedFigures?.length || virtual?.relatedTopics?.length ? (
           <div className="mt-6 flex flex-wrap gap-3">

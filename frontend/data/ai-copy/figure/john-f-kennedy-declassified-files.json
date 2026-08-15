@@ -1,0 +1,96 @@
+{
+  "site": "blackvaultdocs",
+  "kind": "figure",
+  "slug": "john-f-kennedy-declassified-files",
+  "overlayTarget": "/figures/john-f-kennedy/",
+  "canonicalPath": "/guides/john-f-kennedy-declassified-files/",
+  "title": "John F. Kennedy in the 1963 JFK Record",
+  "metaDescription": "President John F. Kennedy was assassinated Nov. 22, 1963 in Dallas. His name appears in CIA, FBI, State, and Secret Service files in the JFK collection.",
+  "h1": "John F. Kennedy in CIA, FBI, State, and Secret Service records",
+  "lede": "President John F. Kennedy was assassinated on November 22, 1963 in Dallas, Texas. His name appears throughout CIA, FBI, State Department, and Secret Service records in the JFK Assassination Records Collection. BlackVaultDocs’ figure hub matches that name in document titles from public NARA releases. The hub is a title index, not a narrative of the presidency and not a file count. PDFs remain on the originating archive.",
+  "sections": [
+    {
+      "h2": "What the Kennedy figure hub lists",
+      "paragraphs": [
+        "The figure slug john-f-kennedy groups indexed titles that name John F. Kennedy. The packet supplies no document count, so this page does not invent one. The public-record identity in the blurb is: President John F. Kennedy, assassinated on November 22, 1963 in Dallas, Texas, with the name appearing throughout CIA, FBI, State Department, and Secret Service records in the JFK Assassination Records Collection.",
+        "Four agency series are named: CIA, FBI, State Department, and Secret Service. The packet does not split title hits among those four. This overlay does not invent those splits. A title that names the president is a catalog hit, not a finding that the file is an assassination report rather than a routine cable.",
+        "Dallas, Texas and November 22, 1963 are the place and date the blurb gives for the assassination. This page restates those facts. It does not add a motorcade map, a hospital name, or a document-count-by-agency table, because those are not in the facts."
+      ]
+    },
+    {
+      "h2": "The JFK Assassination Records Collection as named home",
+      "paragraphs": [
+        "The blurb places the name throughout records in the JFK Assassination Records Collection. That collection name is the archival home cited here. The related topic href on the packet is the JFK assassination collection, which matches that identity as an internal link.",
+        "Name appearance “throughout” is a qualitative statement in the blurb, not a percentage of the collection. This page does not convert it into a count. Researchers who need the scans should open the originating archive from the figure hub. BlackVaultDocs matches names in titles; it does not re-host the PDFs."
+      ]
+    },
+    {
+      "h2": "How name matching works for President Kennedy",
+      "paragraphs": [
+        "Figure hubs match names in document titles from public NARA releases indexed on BlackVaultDocs. The Kennedy hub is that match, not a complete presidential library and not a complete FOIA log. A missing title hit means the indexed title in this ingest did not match the name as implemented.",
+        "The all-figures directory lists other people in the same name index, including others named in JFK-related blurbs on separate packets. Use this hub for titles that name John F. Kennedy. Use the collection link for the broader posting."
+      ]
+    },
+    {
+      "h2": "What this page does not claim",
+      "paragraphs": [
+        "This overlay does not argue who fired, how many shots were fired, or whether a conspiracy existed. It restates the packet: President John F. Kennedy was assassinated on November 22, 1963 in Dallas, Texas; his name appears throughout CIA, FBI, State Department, and Secret Service records in the JFK Assassination Records Collection. Conspiracy commentary is outside the index.",
+        "No NARA ID is in the facts. No document total is in the facts. Cite November 22, 1963, Dallas, Texas, and the four named series. Do not attach an invented file count to the president’s name."
+      ]
+    },
+    {
+      "h2": "Where to read Kennedy-titled files",
+      "paragraphs": [
+        "The John F. Kennedy figure hub is the live title list. All figures shows the rest of the name index. The JFK assassination collection is the related topic link on this packet. Open the originating archive for scans. A later ingest can retag titles; this prose still will not invent a document count.",
+        "CIA, FBI, State Department, and Secret Service are four named series. Appearance “throughout” those series is qualitative. This page does not convert it into four subtotals. A title that names the president may be any of those series or another type the packet does not list."
+      ]
+    },
+    {
+      "h2": "How to cite President Kennedy on this site",
+      "paragraphs": [
+        "Cite President John F. Kennedy as assassinated on November 22, 1963 in Dallas, Texas, with the name appearing throughout CIA, FBI, State Department, and Secret Service records in the JFK Assassination Records Collection, as matched by name in indexed titles on BlackVaultDocs. Do not cite a document count from this guide. Do not treat the figure hub as a finding on the assassination. The source note is that figure hubs match names in document titles from public NARA releases indexed on BlackVaultDocs.",
+        "Dallas, Texas and November 22, 1963 are the place and date this packet gives. Cite them with the JFK Assassination Records Collection. Do not add a motorcade time or a hospital name from outside the facts. Do not attach a file count to the president’s name from this guide."
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "q": "How does John F. Kennedy appear in the declassified files?",
+      "a": "The packet states that President John F. Kennedy was assassinated on November 22, 1963 in Dallas, Texas, and that his name appears throughout CIA, FBI, State Department, and Secret Service records in the JFK Assassination Records Collection. BlackVaultDocs matches that name in indexed titles. This page does not assign a file count."
+    },
+    {
+      "q": "When and where was President Kennedy assassinated in this record?",
+      "a": "The blurb dates the assassination to November 22, 1963 in Dallas, Texas. That is the chronology this page cites. The packet does not give a document count for that date. Titles that name John F. Kennedy appear on the figure hub; PDFs remain on the originating archive."
+    },
+    {
+      "q": "Which agencies’ files name President Kennedy in this collection?",
+      "a": "The blurb names CIA, FBI, State Department, and Secret Service records in the JFK Assassination Records Collection. It does not split title hits among those four series. This page does not invent those splits. Open the figure hub and the originating archive for the scans."
+    },
+    {
+      "q": "Does the Kennedy figure hub prove a conspiracy?",
+      "a": "No. The hub matches the name John F. Kennedy in document titles from public NARA releases indexed on BlackVaultDocs. It restates the November 22, 1963 assassination in Dallas and the four named agency series. It does not interpret those files as proof of a plot."
+    }
+  ],
+  "takeaways": [
+    "President John F. Kennedy was assassinated on November 22, 1963 in Dallas, Texas.",
+    "His name appears throughout CIA, FBI, State Department, and Secret Service records in the JFK Assassination Records Collection.",
+    "The figure hub matches that name in indexed titles; this packet supplies no document count.",
+    "The related topic link on this packet is the JFK assassination collection.",
+    "This page does not treat title hits as a finding on conspiracy."
+  ],
+  "internalLinks": [
+    {
+      "href": "/figures/john-f-kennedy/",
+      "anchor": "John F. Kennedy figure hub"
+    },
+    {
+      "href": "/figures/",
+      "anchor": "All figures"
+    },
+    {
+      "href": "/topics/jfk-assassination/",
+      "anchor": "JFK assassination collection"
+    }
+  ],
+  "sourceNote": "Figure hubs match names in document titles from public NARA releases indexed on BlackVaultDocs."
+}

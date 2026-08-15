@@ -1,0 +1,204 @@
+{
+  "overlayIndex": {
+    "/agencies/nara/": {
+      "kind": "agency",
+      "slug": "nara-reading-room"
+    },
+    "/figures/allen-dulles/": {
+      "kind": "figure",
+      "slug": "allen-dulles-declassified-files"
+    },
+    "/figures/david-atlee-phillips/": {
+      "kind": "figure",
+      "slug": "david-atlee-phillips-declassified-files"
+    },
+    "/figures/e-howard-hunt/": {
+      "kind": "figure",
+      "slug": "e-howard-hunt-declassified-files"
+    },
+    "/figures/fidel-castro/": {
+      "kind": "figure",
+      "slug": "fidel-castro-declassified-files"
+    },
+    "/figures/george-joannides/": {
+      "kind": "figure",
+      "slug": "george-joannides-declassified-files"
+    },
+    "/figures/j-edgar-hoover/": {
+      "kind": "figure",
+      "slug": "j-edgar-hoover-declassified-files"
+    },
+    "/figures/jack-ruby/": {
+      "kind": "figure",
+      "slug": "jack-ruby-declassified-files"
+    },
+    "/figures/james-earl-ray/": {
+      "kind": "figure",
+      "slug": "james-earl-ray-declassified-files"
+    },
+    "/figures/james-jesus-angleton/": {
+      "kind": "figure",
+      "slug": "james-jesus-angleton-declassified-files"
+    },
+    "/figures/john-f-kennedy/": {
+      "kind": "figure",
+      "slug": "john-f-kennedy-declassified-files"
+    },
+    "/figures/lee-harvey-oswald/": {
+      "kind": "figure",
+      "slug": "lee-harvey-oswald-declassified-files"
+    },
+    "/figures/martin-luther-king-jr/": {
+      "kind": "figure",
+      "slug": "martin-luther-king-jr-declassified-files"
+    },
+    "/figures/robert-f-kennedy/": {
+      "kind": "figure",
+      "slug": "robert-f-kennedy-declassified-files"
+    },
+    "/figures/sirhan-sirhan/": {
+      "kind": "figure",
+      "slug": "sirhan-sirhan-declassified-files"
+    },
+    "/topics/jfk-release-2017/": {
+      "kind": "topic",
+      "slug": "jfk-release-2017-declassified-documents"
+    },
+    "/topics/jfk-release-2021/": {
+      "kind": "topic",
+      "slug": "jfk-release-2021-declassified-documents"
+    },
+    "/topics/jfk-release-2022/": {
+      "kind": "topic",
+      "slug": "jfk-release-2022-declassified-documents"
+    },
+    "/topics/jfk-release-2023/": {
+      "kind": "topic",
+      "slug": "jfk-release-2023-declassified-documents"
+    },
+    "/topics/jfk-release-2025/": {
+      "kind": "topic",
+      "slug": "jfk-release-2025-declassified-documents"
+    },
+    "/topics/mlk-release-2025/": {
+      "kind": "topic",
+      "slug": "mlk-release-2025-declassified-documents"
+    },
+    "/topics/rfk-release-2025/": {
+      "kind": "topic",
+      "slug": "rfk-release-2025-declassified-documents"
+    }
+  },
+  "slugIndex": {
+    "nara-reading-room": {
+      "kind": "agency",
+      "overlayTarget": "/agencies/nara/",
+      "canonicalPath": "/guides/nara-reading-room/"
+    },
+    "allen-dulles-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/allen-dulles/",
+      "canonicalPath": "/guides/allen-dulles-declassified-files/"
+    },
+    "david-atlee-phillips-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/david-atlee-phillips/",
+      "canonicalPath": "/guides/david-atlee-phillips-declassified-files/"
+    },
+    "e-howard-hunt-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/e-howard-hunt/",
+      "canonicalPath": "/guides/e-howard-hunt-declassified-files/"
+    },
+    "fidel-castro-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/fidel-castro/",
+      "canonicalPath": "/guides/fidel-castro-declassified-files/"
+    },
+    "george-joannides-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/george-joannides/",
+      "canonicalPath": "/guides/george-joannides-declassified-files/"
+    },
+    "j-edgar-hoover-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/j-edgar-hoover/",
+      "canonicalPath": "/guides/j-edgar-hoover-declassified-files/"
+    },
+    "jack-ruby-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/jack-ruby/",
+      "canonicalPath": "/guides/jack-ruby-declassified-files/"
+    },
+    "james-earl-ray-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/james-earl-ray/",
+      "canonicalPath": "/guides/james-earl-ray-declassified-files/"
+    },
+    "james-jesus-angleton-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/james-jesus-angleton/",
+      "canonicalPath": "/guides/james-jesus-angleton-declassified-files/"
+    },
+    "john-f-kennedy-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/john-f-kennedy/",
+      "canonicalPath": "/guides/john-f-kennedy-declassified-files/"
+    },
+    "lee-harvey-oswald-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/lee-harvey-oswald/",
+      "canonicalPath": "/guides/lee-harvey-oswald-declassified-files/"
+    },
+    "martin-luther-king-jr-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/martin-luther-king-jr/",
+      "canonicalPath": "/guides/martin-luther-king-jr-declassified-files/"
+    },
+    "robert-f-kennedy-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/robert-f-kennedy/",
+      "canonicalPath": "/guides/robert-f-kennedy-declassified-files/"
+    },
+    "sirhan-sirhan-declassified-files": {
+      "kind": "figure",
+      "overlayTarget": "/figures/sirhan-sirhan/",
+      "canonicalPath": "/guides/sirhan-sirhan-declassified-files/"
+    },
+    "jfk-release-2017-declassified-documents": {
+      "kind": "topic",
+      "overlayTarget": "/topics/jfk-release-2017/",
+      "canonicalPath": "/guides/jfk-release-2017-declassified-documents/"
+    },
+    "jfk-release-2021-declassified-documents": {
+      "kind": "topic",
+      "overlayTarget": "/topics/jfk-release-2021/",
+      "canonicalPath": "/guides/jfk-release-2021-declassified-documents/"
+    },
+    "jfk-release-2022-declassified-documents": {
+      "kind": "topic",
+      "overlayTarget": "/topics/jfk-release-2022/",
+      "canonicalPath": "/guides/jfk-release-2022-declassified-documents/"
+    },
+    "jfk-release-2023-declassified-documents": {
+      "kind": "topic",
+      "overlayTarget": "/topics/jfk-release-2023/",
+      "canonicalPath": "/guides/jfk-release-2023-declassified-documents/"
+    },
+    "jfk-release-2025-declassified-documents": {
+      "kind": "topic",
+      "overlayTarget": "/topics/jfk-release-2025/",
+      "canonicalPath": "/guides/jfk-release-2025-declassified-documents/"
+    },
+    "mlk-release-2025-declassified-documents": {
+      "kind": "topic",
+      "overlayTarget": "/topics/mlk-release-2025/",
+      "canonicalPath": "/guides/mlk-release-2025-declassified-documents/"
+    },
+    "rfk-release-2025-declassified-documents": {
+      "kind": "topic",
+      "overlayTarget": "/topics/rfk-release-2025/",
+      "canonicalPath": "/guides/rfk-release-2025-declassified-documents/"
+    }
+  }
+}

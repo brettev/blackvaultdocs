@@ -1,0 +1,97 @@
+{
+  "site": "blackvaultdocs",
+  "kind": "topic",
+  "slug": "jfk-release-2021-declassified-documents",
+  "overlayTarget": "/topics/jfk-release-2021/",
+  "canonicalPath": "/guides/jfk-release-2021-declassified-documents/",
+  "title": "JFK 2021 Release: 1,484 Indexed Records",
+  "metaDescription": "BlackVaultDocs indexes 1,484 files from the JFK Assassination Records 2021 release — 2.8% of 52,684 documents in the site-wide NARA/FOIA index.",
+  "h1": "JFK Assassination Records — 2021 Release, 1,484 indexed files",
+  "lede": "BlackVaultDocs indexes 1,484 documents from the JFK Assassination Records — 2021 Release, 2.8% of a site-wide index of 52,684 documents. The files were disclosed in 2021 from the President John F. Kennedy Assassination Records Collection. The 1,484 count is a catalog of public NARA releases indexed on this site, not a claim that 2021 was a small year in NARA’s own inventory. PDFs remain on the originating archive.",
+  "sections": [
+    {
+      "h2": "What the 1,484-document count measures",
+      "paragraphs": [
+        "The 1,484 figure is the BlackVaultDocs index total for topic slug jfk-release-2021. Collection name is JFK Assassination Records — 2021 Release. Each row is one indexed file from the 2021 disclosure of the President John F. Kennedy Assassination Records Collection. A short transmittal and a long report each add one to docCount when they are separate indexed records.",
+        "One thousand four hundred eighty-four is 2.8% of the 52,684 documents in the site-wide index. Among the JFK release-year hubs in this harvest, 1,484 is the smallest docCount. That ranking is a statement about this website’s ingest, not about the historical weight of the 2021 posting and not about how NARA would rank its own batches.",
+        "Agency slug is nara. The packet description is a single sentence: files disclosed in 2021 from the President John F. Kennedy Assassination Records Collection. No file-type list, no cable sub-count, and no NARA IDs appear in the facts. This page does not invent them."
+      ]
+    },
+    {
+      "h2": "2021 as a posting year among larger JFK slices",
+      "paragraphs": [
+        "The 1,484 rows are not leftover files from the 2017–2018 hub and not a preview of 2022. They are a separate topic slug. Larger JFK posting years in the same index have their own counts; those counts are not repeated here because they are not in this packet. The only volume figures this overlay may cite are 1,484 and 52,684.",
+        "The 2.8% share will change only if ingest rebuilds 1,484 or 52,684. It will not change because a researcher reads a 2021 file as more or less important than a 2022 file."
+      ]
+    },
+    {
+      "h2": "What 1,484 does not decide",
+      "paragraphs": [
+        "This page does not argue that a smaller indexed batch means the 2021 disclosure was unimportant, incomplete in NARA’s eyes, or conclusive. The indexed fact is 1,484 public files from a 2021 disclosure of the President John F. Kennedy Assassination Records Collection. Conspiracy commentary is outside the catalog.",
+        "Absence from the 1,484 is absence from this collection slice in the BlackVaultDocs index. A title may still appear under another topic slug in the 52,684-document site-wide index. The document index is the place to look across collections."
+      ]
+    },
+    {
+      "h2": "Using the 2021 collection hub",
+      "paragraphs": [
+        "The JFK Assassination Records — 2021 Release collection page lists the files behind 1,484. All collections shows sibling topic hubs. The document index is site-wide. Open the originating archive for PDFs; this site stores catalog metadata and a pointer.",
+        "Title search matches indexed fields, not necessarily every word inside a scan. The 1,484 count will not tell you whether a name appears in the body of a PDF.",
+        "The 2021 hub is also not a residual folder for files that failed to post in 2017–2018. Topic slug jfk-release-2021 is a distinct ingest identity. If a title appears here and also under another year’s slug after a later rebuild, that would be an ingest fact, not a reason to add 1,484 to another packet’s docCount."
+      ]
+    },
+    {
+      "h2": "How to cite the 1,484 and 52,684 figures",
+      "paragraphs": [
+        "Cite 1,484 as BlackVaultDocs’ indexed document count for JFK Assassination Records — 2021 Release. Cite 52,684 as the site-wide document total. Both come from an ingest of public NARA and FOIA releases. They are not offered as NARA’s official complete inventory of the JFK collection. If ingest is rebuilt, either number can move. PDFs remain on the originating archive."
+      ]
+    },
+    {
+      "h2": "Limits of a 1,484-row catalog",
+      "paragraphs": [
+        "A catalog of 1,484 rows can look small next to the 52,684-document site-wide index. Size on this site is not a proxy for how NARA would describe the 2021 posting, and it is not a proxy for how many pages sit inside those PDFs. Researchers who need page images still open the originating archive. BlackVaultDocs stores the pointer and the catalog metadata.",
+        "Cite 1,484 with the collection name JFK Assassination Records — 2021 Release and with the disclosure year 2021. Cite 52,684 only as the site-wide denominator in the same ingest. If a later ingest run changes either number, the live collection hub is the place to read the new total. This prose does not silently rewrite 1,484 after you load the page.",
+        "The 2.8% share is 1,484 divided by 52,684. It will move only when those two index counts move. It will not move because a cable in the 2021 posting is read as more or less important than a cable in another year."
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "q": "How many JFK 2021 release documents does BlackVaultDocs index?",
+      "a": "BlackVaultDocs indexes 1,484 documents under JFK Assassination Records — 2021 Release. That is 2.8% of the 52,684 documents in the site-wide index. The files were disclosed in 2021 from the President John F. Kennedy Assassination Records Collection. PDFs remain on the originating archive."
+    },
+    {
+      "q": "Why is the 2021 JFK hub smaller than later years on this site?",
+      "a": "This packet only publishes 1,484 for 2021 and 52,684 for the site-wide index. It does not explain NARA’s posting calendar or compare those figures to later years. The 2.8% share describes catalog volume on BlackVaultDocs. Other release years are separate hubs with their own packets."
+    },
+    {
+      "q": "What agency is tagged on the 2021 JFK collection?",
+      "a": "Agency slug is nara, the National Archives and Records Administration. The description is files disclosed in 2021 from the President John F. Kennedy Assassination Records Collection. BlackVaultDocs indexes those public releases; it does not re-host the PDFs. Cite 1,484 as this hub’s index count only."
+    },
+    {
+      "q": "Does a 1,484-document index mean the 2021 release closed the JFK record?",
+      "a": "No. 1,484 is an index count for one posting year as ingested here. The site-wide index holds 52,684 documents across collections. This page does not treat 1,484 as NARA’s complete holdings or as a finding about the assassination. Open the collection hub and the originating archive for the scans."
+    }
+  ],
+  "takeaways": [
+    "BlackVaultDocs indexes 1,484 documents in JFK Assassination Records — 2021 Release.",
+    "That slice is 2.8% of the 52,684 documents in the site-wide index.",
+    "The files were disclosed in 2021 from the President John F. Kennedy Assassination Records Collection.",
+    "Agency tagging is nara; PDFs remain on the originating archive.",
+    "1,484 is a catalog count, not a finding about the assassination."
+  ],
+  "internalLinks": [
+    {
+      "href": "/topics/jfk-release-2021/",
+      "anchor": "JFK Assassination Records — 2021 Release collection"
+    },
+    {
+      "href": "/topics/",
+      "anchor": "All collections"
+    },
+    {
+      "href": "/documents/",
+      "anchor": "Document index"
+    }
+  ],
+  "sourceNote": "Document counts from BlackVaultDocs index of public NARA / FOIA releases. PDFs remain on the originating archive."
+}
