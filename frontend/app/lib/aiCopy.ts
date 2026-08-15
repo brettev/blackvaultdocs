@@ -87,6 +87,9 @@ export const TIE_KINDS = new Set([
   'fec-vs-spend',
   'type-compare',
   'month-compare',
+  'party-state',
+  'party-cycle',
+  'city-pac',
 ]);
 
 export function isTieKind(kind: string): boolean {
